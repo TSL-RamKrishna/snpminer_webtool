@@ -1,0 +1,44 @@
+<html>
+<title>snpminer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="./css/w3.css">
+<body>
+
+<header class="w3-container w3-blue">
+  <h1>SNP miner</h1>
+</header>
+
+<form action = "./cgi-bin/snpminer.py" method = "get" enctype="multipart/form-data">
+Upload the reference sequence: <br/> <br/>
+Resistant parent reference seqeunce: <input type = "file" name = "resistant_parent" multiple/>  <br/>
+Susceptible parent reference sequence: <input type = "file" name = "susceptible_parent" multiple/> <br/><br/>
+
+
+Now upload the NGS sequence reads <br/><br/>
+
+Resistant parent forward reads: <input type = "file" name = "resistant_parent_forward_reads" multiple />  <br/>
+Resistant parent reverse reads: <input type = "file" name = "resistant_parent_reverse_reads" multiple />  <br/> </br>
+
+Susceptible parent forward reads: <input type = "file" name = "susceptible_parent_forward_reads" multiple/>  <br/>
+Susceptible parent reverse reads: <input type = "file" name = "susceptible_parent_reverse_reads" multiple/>  <br/></br>
+
+Bulk Susceptible forward reads: <input type = "file" name = "bulk_susceptible_forward_reads" multiple/>  <br/>
+Bulk Susceptible reverse reads: <input type = "file" name = "bulk_susceptible_reverse_reads" multiple/>  <br/></br>
+
+If you have mapped reads in SAM/BAM format, upload SAM/BAM format files. (Files should have either SAM or BAM extension) <br/></br>
+
+Resistant sample SAM/BAM File : <input type = "file" name = "resistant_mapped_sambam" multiple> </br>
+Suscepitble sample SAM/BAM File : <input type = "file" name = "susceptible_mapped_sambam" multiple> </br> </br>
+
+If you have VCF files with SNP calls, upload the VCF files to compare the common or alternate SNPs </br></br>
+
+Resistant sample VCF File/s : <input type = "file" name = "resistant_sample_vcfs" multiple> </br>
+Susceptible sample VCF File/s : <input type = "file" name = "susceptible_sample_vcfs" multiple> </br>
+
+<input type = "submit" value = "SUBMIT" /> </br> </br>
+
+Note: Please download your result files. Files will be deleted after 7 days. </br>
+</form>
+
+</body>
+</html>
