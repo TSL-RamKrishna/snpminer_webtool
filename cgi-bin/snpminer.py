@@ -80,5 +80,11 @@ if susceptible_mapped_sambam:
 if resistant_mapped_sambam:
 	print( "Resistant sample sambam : %s </br>") % (resistant_mapped_sambam)
 
+if resistant_sample_vcfs:
+	print("First VCF file:  %s") %s (resistant_sample_vcfs)
+
+if susceptible_sample_vcfs:
+	print("Second VCF file: %s") %s (susceptible_sample_vcfs)
+
 print "</body>"
 print "</html>"

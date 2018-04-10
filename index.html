@@ -5,35 +5,45 @@
 <body>
 
 <header class="w3-container w3-blue">
-  <h1>SNP miner</h1>
+  <h1>SNP Compare and Filter</h1>
 </header>
 
 <form action = "./cgi-bin/snpminer.py" method = "get" enctype="multipart/form-data">
 Upload the reference sequence: <br/> <br/>
-Resistant parent reference seqeunce: <input type = "file" name = "resistant_parent" multiple/>  <br/>
-Susceptible parent reference sequence: <input type = "file" name = "susceptible_parent" multiple/> <br/><br/>
+<div>
+<label for="file">Resistant parent reference seqeunce:</label>
+<input type = "file" name = "resistant_parent" multiple/>  <br/>
+</label>Susceptible parent reference sequence:</label> <input type = "file" name = "susceptible_parent" multiple/> <br/><br/>
+</div>
+Upload your VCF files for comparison
 
+If you have VCF files with SNP calls, upload the VCF files to compare the common or alternate SNPs with filtering parameters like homozygousity/heterozygousity, read depth, SNPCall percentage </br></br>
 
-Now upload the NGS sequence reads <br/><br/>
+Resistant sample VCF File/s : <input type = "file" id="resistant_vcfs" name = "resistant_sample_vcfs" accept=".vcf" multiple> </br></br>
+Susceptible sample VCF File/s : <input type = "file" name = "susceptible_sample_vcfs" multiple> </br> </br>
 
-Resistant parent forward reads: <input type = "file" name = "resistant_parent_forward_reads" multiple />  <br/>
-Resistant parent reverse reads: <input type = "file" name = "resistant_parent_reverse_reads" multiple />  <br/> </br>
+Filtering parameters : </br> </br>
 
-Susceptible parent forward reads: <input type = "file" name = "susceptible_parent_forward_reads" multiple/>  <br/>
-Susceptible parent reverse reads: <input type = "file" name = "susceptible_parent_reverse_reads" multiple/>  <br/></br>
+Genotype: <input type="radio" id="Genotype" name="genotype" value="Homozygous" checked> Homozygous
+          <input type="radio" id="Genotype" name="genotype" value="Heterozygous"> Heterozygous </br></br>
 
-Bulk Susceptible forward reads: <input type = "file" name = "bulk_susceptible_forward_reads" multiple/>  <br/>
-Bulk Susceptible reverse reads: <input type = "file" name = "bulk_susceptible_reverse_reads" multiple/>  <br/></br>
-
-If you have mapped reads in SAM/BAM format, upload SAM/BAM format files. (Files should have either SAM or BAM extension) <br/></br>
-
-Resistant sample SAM/BAM File : <input type = "file" name = "resistant_mapped_sambam" multiple> </br>
-Suscepitble sample SAM/BAM File : <input type = "file" name = "susceptible_mapped_sambam" multiple> </br> </br>
-
-If you have VCF files with SNP calls, upload the VCF files to compare the common or alternate SNPs </br></br>
-
-Resistant sample VCF File/s : <input type = "file" name = "resistant_sample_vcfs" multiple> </br>
-Susceptible sample VCF File/s : <input type = "file" name = "susceptible_sample_vcfs" multiple> </br>
+Variant allele frequency : <input type="input" name="variant_allele_freq"> </br>
+Average per-sample depth of bases with Phred score >= 15 : <input type="input" name="per_sample_depth"> </br>
+Number of samples called reference (wild-type): <input type="input" name="sample_called_reference"> </br>
+Number of samples not called: <input type="input" name="not_called"> </br>
+Genotype Quality(GQ):  <input type="input" name="genotype_quality"> </br>
+Raw Read Depth as reported by SAMtools (SDP):  <input type="input" name="raw_read_depth"> </br>
+Quality Read Depth of bases with Phred score >= 15 (DP) :  <input type="input" name="quality_read_depth"> </br>
+Depth of reference-supporting bases (reads1):  <input type="input" name="ref_support_read_depth"> </br>
+Depth of variant-supporting bases (reads2) (AD):  <input type="input" name="variant_read_depth"> </br>
+Variant allele frequency (FREQ):  <input type="input" name="variant_called_frequency"> </br>
+P-value from Fisher's Exact Test (PVAL):  <input type="input" name="pvalue"> </br>
+Average quality of reference-supporting bases (qual1) (RBQ):  <input type="input" name="avg_qual_ref_support_bases"> </br>
+Average quality of variant-supporting bases (qual2) (ABQ):  <input type="input" name="avg_qual_variant_support_bases"> </br>
+Depth of reference-supporting bases on forward strand (reads1plus) (RDF):  <input type="input" name="depth_ref_support_forward_strand"> </br>
+Depth of reference-supporting bases on reverse strand (reads1minus) (RDR):  <input type="input" name="depth_ref_support_reverse_strand"> </br>
+Depth of variant-supporting bases on forward strand (reads2plus) (ADF) :  <input type="input" name="depth_variant_support_forward_strand"> </br>
+Depth of variant-supporting bases on reverse strand (reads2minus) (ADR) :  <input type="input" name="depth_variant_support_reverse_strand"> </br>
 
 <input type = "submit" value = "SUBMIT" /> </br> </br>
 
