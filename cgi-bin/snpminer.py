@@ -11,7 +11,9 @@ form = cgi.FieldStorage()
 resistant_sample_vcfs = form.getvalue('resistant_sample_vcfs')
 susceptible_sample_vcfs = form.getvalue('susceptible_sample_vcfs')
 reference_sequence = form.getvalue('reference_sequence')
-input_vcfs = form.getvalue("input_vcfs")
+input_vcfs = form.getvalue("input_vcfs[]")
+filtersnps = form.getvalue("filter-snps")
+comparesnps =  form.getvalue("compare")
 genotype = form.getvalue('genotype')
 variant_allele_freq = form.getvalue('variant_allele_freq')
 per_sample_depth = form.getvalue('per_sample_depth')
@@ -32,7 +34,7 @@ depth_ref_support_reverse_strand = form.getvalue('depth_ref_support_reverse_stra
 depth_variant_support_forward_strand = form.getvalue('depth_variant_support_forward_strand')
 depth_variant_support_reverse_strand = form.getvalue('depth_variant_support_reverse_strand')
 
-pythonscript="filter_vcf.py"
+pythonscript="filter_compare_vcf.py"
 command="python3 " + pythonscript
 
 print "Content-type:text/html\r\n\r\n"
@@ -49,7 +51,7 @@ if reference_sequence:
 
 if input_vcfs:
 	if isinstance(input_vcfs, list):
-		print("Input VCFs : %s </br></br>") % " ".join(input_vcfs)
+		print("Input VCFs : %s </br></br>") % ", ".join(input_vcfs)
 	else:
 		print("Input VCFs : %s </br></br>") % input_vcfs
 
@@ -65,6 +67,10 @@ if input_vcfs:
 		command+=" --input " + ",".join(input_vcfs)
 	else:
 		command+=" --input " + input_vcfs
+if filtersnps:
+	command+=" --filter "
+if comparesnps:
+	command+=" --common "
 
 if genotype:
 	print('Gentotype : %s </br>') % (genotype)

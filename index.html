@@ -8,6 +8,10 @@
     }
 
     /* Create two equal columns that floats next to each other */
+    .row{
+        margin-bottom:8px;
+    }
+
     .column {
         float: left;
         width: 50%;
@@ -15,9 +19,6 @@
         /*line-height: 2.0;*/
     }
 
-    .row{
-        margin-bottom:8px;
-    }
     /* Clear floats after the columns */
     .row:after {
         content: "";
@@ -28,11 +29,12 @@
     .btn{
         background: #5c7aff;
         padding:8px;
-        width:100%;
+        width:10%;
         color:white;
         border-radius: 8px;
         font-weight:bold;
         text-transform: uppercase;
+        align:"middle";
     }
 
     header{
@@ -43,7 +45,7 @@
 
 
 <header class="w3-container w3-blue">
-    <h1>SNP Compare and Filter</h1>
+    <h1>SNP Filter and Compare</h1>
 </header>
 
 <div class="w3-container">
@@ -53,171 +55,187 @@
 
         Upload your VCF files for comparison
 
-        Upload a VCF file with multiple samples or mutiple VCF files each with one sample for comparing common or unique
-        SNPs. </br></br>
-
-        Upload VCF file: <input type="file" name="input_vcfs" accept=".vcf" id="upload" required multiple>
-
-
-        Filtering parameters: </br> </br>
-        Note: Values for the parameters below are defaults. Please change them as you wish. </br></br>
+        Upload a VCF file with multiple samples or multiple VCF files each with one sample for filter and/or comparing SNPs. </br></br>
+        <div class="input_files_wrap">
+            Upload one or more VCF files: </br>
+            <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple></br>
+        </div>
+        <button type="button" class="add_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Add</button>
+        <button type="button" class="remove_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Remove</button>
 
         <hr>
 
-        <h3>Genotyping</h3>
-
-        Genotype: <input type="radio" id="Genotype" name="genotype" value="Homozygous" checked> Homozygous
-        <input type="radio" id="Genotype" name="genotype" value="Heterozygous"> Heterozygous </br></br>
-
-        <hr>
-
-        <h3>Depth/Frequency:</h3>
-        <div class="row">
-            <div class="column">
-                Minimum variant allele frequency (FREQ):
-            </div>
-            <div class="column">
-                <input type="input" value=80 name="variant_allele_freq">
-            </div>
+        What do you want to do: </br>
+        <input type="checkbox" id="filtersnps" name="filtersnps" onchange="filterOptionCheck()">Filter snps</input>
+        <input type="Checkbox" id="comparesnps" name="comparesnps" onchange="compareOptionCheck()">Compare snps</input>
+        <div id="compare-toggle-options" style="visibility:hidden">
+          <input type="radio" name="compare" id="compare-common" checked>Common</input>
+          <input type="radio" name="compare" id="compare-alternate">Alternate</input>
         </div>
 
+        <div id="filter-toggle-options" style="visibility:hidden">
+          <hr>
+          Filtering parameters: </br> </br>
+          Note: Values for the parameters below are defaults. Please change them as you wish. </br></br>
 
-        <div class="row">
-            <div class="column">
-                Minimum average per-sample depth of bases with Phred score >= 15 (ADP):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="per_sample_depth">
-            </div>
+          <hr>
+
+          <h3>Genotyping</h3>
+
+          Genotype: <input type="radio" id="Genotype" name="genotype" value="Homozygous" checked> Homozygous
+          <input type="radio" id="Genotype" name="genotype" value="Heterozygous"> Heterozygous </br></br>
+
+          <hr>
+
+          <h3>Depth/Frequency:</h3>
+          <div class="row">
+              <div class="column">
+                  Minimum variant allele frequency (FREQ):
+              </div>
+              <div class="column">
+                  <input type="input" value=80 name="variant_allele_freq">
+              </div>
+          </div>
+
+
+          <div class="row">
+              <div class="column">
+                  Minimum average per-sample depth of bases with Phred score >= 15 (ADP):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="per_sample_depth">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum number of samples called reference (wild-type) (WT):
+              </div>
+              <div class="column">
+                  <input type="input" value=1 name="sample_called_reference">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Raw Read Depth as reported by SAMtools (SDP):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="raw_read_depth">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Quality Read Depth of bases with Phred score >= 15 (DP):
+              </div>
+              <div class="column">
+                  <input type="input" value=10 name="quality_read_depth">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Depth of reference-supporting bases (reads1) (RD):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="ref_support_read_depth">
+              </div>
+          </div>
+
+
+          <div class="row">
+              <div class="column">
+                  Minimum Depth of variant-supporting bases (reads2) (AD):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="variant_read_depth">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Depth of reference-supporting bases on forward strand (reads1plus) (RDF):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="depth_ref_support_forward_strand">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Depth of reference-supporting bases on reverse strand (reads1minus) (RDR):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="depth_ref_support_reverse_strand">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Depth of variant-supporting bases on forward strand (reads2plus) (ADF):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="depth_variant_support_forward_strand">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Depth of variant-supporting bases on reverse strand (reads2minus) (ADR):
+              </div>
+              <div class="column">
+                  <input type="input" value=3 name="depth_variant_support_reverse_strand">
+              </div>
+          </div>
+
+
+          <hr>
+
+          <h3>Quality: </h3>
+          <div class="row">
+              <div class="column">
+                  Minimum Genotype Quality (GQ):
+              </div>
+              <div class="column">
+                  <input type="input" value=10 name="genotype_quality">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Average quality of reference-supporting bases (qual1) (RBQ):
+              </div>
+              <div class="column">
+                  <input type="input" value=10 name="avg_qual_ref_support_bases">
+              </div>
+          </div>
+
+          <div class="row">
+              <div class="column">
+                  Minimum Average quality of variant-supporting bases (qual2) (ABQ):
+              </div>
+              <div class="column">
+                  <input type="input" value=10 name="avg_qual_variant_support_bases">
+              </div>
+          </div>
+
+          <hr>
+
+          <h3>P-value</h3>
+          <div class="row">
+              <div class="column">
+                  P-value from Fisher's Exact Test (PVAL) less or equal to:
+              </div>
+              <div class="column">
+                  <input type="number" value=0.05 id="pvalue" name="pvalue" min="0.01" max="1.0" step="0.01">
+              </div>
+          </div>
+
+          <hr>
         </div>
 
-        <div class="row">
-            <div class="column">
-                Minimum number of samples called reference (wild-type) (WT):
-            </div>
-            <div class="column">
-                <input type="input" value=1 name="sample_called_reference">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Raw Read Depth as reported by SAMtools (SDP):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="raw_read_depth">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Quality Read Depth of bases with Phred score >= 15 (DP):
-            </div>
-            <div class="column">
-                <input type="input" value=10 name="quality_read_depth">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Depth of reference-supporting bases (reads1) (RD):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="ref_support_read_depth">
-            </div>
-        </div>
-
-
-        <div class="row">
-            <div class="column">
-                Minimum Depth of variant-supporting bases (reads2) (AD):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="variant_read_depth">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Depth of reference-supporting bases on forward strand (reads1plus) (RDF):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="depth_ref_support_forward_strand">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Depth of reference-supporting bases on reverse strand (reads1minus) (RDR):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="depth_ref_support_reverse_strand">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Depth of variant-supporting bases on forward strand (reads2plus) (ADF):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="depth_variant_support_forward_strand">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Depth of variant-supporting bases on reverse strand (reads2minus) (ADR):
-            </div>
-            <div class="column">
-                <input type="input" value=3 name="depth_variant_support_reverse_strand">
-            </div>
-        </div>
-
-
-        <hr>
-
-        <h3>Quality: </h3>
-        <div class="row">
-            <div class="column">
-                Minimum Genotype Quality (GQ):
-            </div>
-            <div class="column">
-                <input type="input" value=10 name="genotype_quality">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Average quality of reference-supporting bases (qual1) (RBQ):
-            </div>
-            <div class="column">
-                <input type="input" value=10 name="avg_qual_ref_support_bases">
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="column">
-                Minimum Average quality of variant-supporting bases (qual2) (ABQ):
-            </div>
-            <div class="column">
-                <input type="input" value=10 name="avg_qual_variant_support_bases">
-            </div>
-        </div>
-
-        <hr>
-
-        <h3>P-value</h3>
-        <div class="row">
-            <div class="column">
-                P-value from Fisher's Exact Test (PVAL) less or equal to:
-            </div>
-            <div class="column">
-                <input type="number" value=0.05 id="pvalue" name="pvalue" min="0.01" max="1.0" step="0.01">
-            </div>
-        </div>
-
-        <hr>
-        <input class="btn" type="submit" id="submit" value="submit" onclick="validate_on_click_submit_button()"/>
+        <input class="btn" type="submit" id="submit" value="submit" align="middle" onclick="validate_on_click_submit_button()"/>
     </form>
 
 </div>
@@ -225,6 +243,29 @@
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="./LineReader.js"></script>
 <script src="./validate_vcf.js"></script>
+<script src="./input_multiple_files.js"></script>
+
+<script>
+  function filterOptionCheck(){
+    filterOptions = document.getElementById('filter-toggle-options')
+
+    if (filterOptions.style.visibility === 'hidden'){
+      filterOptions.style.visibility = 'visible';
+    } else {
+      filterOptions.style.visibility = 'hidden'
+    }
+  }
+  function compareOptionCheck(){
+    compareOption = document.getElementById('compare-toggle-options')
+    console.log(compareOption)
+    if (compareOption.style.visibility == 'hidden'){
+      compareOption.style.visibility='visible'
+    } else {
+      compareOption.style.visibility='hidden'
+    }
+  }
+</script>
+
 
 </body>
 </html>
