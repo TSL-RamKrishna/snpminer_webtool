@@ -1,7 +1,10 @@
 <html>
-<title>snpminer</title>
+<head>
+  <title>snpminer</title>
+</head>
 <meta name="SNPFilter" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="./css/w3.css">
+<link rel="stylesheet" href="./css/tooltip.css">
 <style>
     * {
         box-sizing: border-box;
@@ -40,40 +43,93 @@
     header{
         margin-bottom: 24px;
     }
+    .textOverImage{
+      width:300px;
+      height:300px;
+      float:left;
+      margin:4px;
+      transition:0.5s;
+    }
+    .textOverImage:after{
+      content:attr(data-text)
+    }
+
+    .w3-container, .w3-panel {
+      padding: 0.01em 95px;
+    }
 </style>
 <body>
 
 
 <header class="w3-container w3-blue">
-    <h1>SNP Filter and Compare</h1>
+    <h1>SNPtool</h1>
 </header>
 
 <div class="w3-container">
+  <h2>
+  SNPtool to filter and compare the SNPs
+</h2>
+<p style="font-size:16px; margin-left:20px;">
+SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF files that do not meet the criteria specified in the filter options. This tool is also capable of comparing the SNPs in two or more VCFs (if this option is ticked) to obtain common SNPs in all VCFs or SNPs in a VCF that are not found in the other VCFs
+</p>
+
+<h3>How to use this webtool</h3>
+<p>
+  <ol>
+    <li>Select and upload the reference sequence file (FASTA format) or file with reference sequence length data in two columns i.e. chromosome and length (.txt format)</li>
+    <li>Select and upload one or more VCF format files</li>
+    <li>Check the filter SNPs box, if you would like to filter the SNPs. The available options are listed upon checking the box. The values in the options are default options. Edit the values to your criteria. </li>
+    <li>Check the compare SNPs box, if you would like to compare the SNPs in the VCF files. </li>
+    <li>Click the Submit button</li>
+    <li>A message will pop up once the processing completes. The result files are located in the folder "results"</li>
+  </ol>
+</p>
+
+<h2>Let's use SNPtool now</h2>
+
+    <hr>
     <form action="./cgi-bin/snpminer.py" method="get" enctype="multipart/form-data">
-        Upload the reference sequence: <br/> <br/>
-        Reference sequence: <input type="file" name="reference_sequence" accept=".fa, .fasta"/> <br/></br>
+        <h3>Input reference sequence (FASTA) or length data (txt)</h3> <br/>
 
-        Upload your VCF files for comparison
+        <input type="file" name="reference_sequence" accept=".fa, .fasta, .txt"/> <br/></br>
+        <hr>
+        <h3>Input VCF format files</h3>
 
-        Upload a VCF file with multiple samples or multiple VCF files each with one sample for filter and/or comparing SNPs. </br></br>
+        Select and upload a one or multiple VCF files for filter and/or comparing SNPs using each add button </br>
         <div class="input_files_wrap">
-            Upload one or more VCF files: </br>
+            Upload one or more VCF files: </br></br>
             <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple></br>
         </div>
+      </br>
         <button type="button" class="add_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Add</button>
         <button type="button" class="remove_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Remove</button>
 
         <hr>
+        <h3> Select what you want to do </h3>
+        <input type="checkbox" id="filter-snps" name="filtersnps" onchange="filterOptionCheck()">Filter SNPs</input>
 
-        What do you want to do: </br>
-        <input type="checkbox" id="filtersnps" name="filtersnps" onchange="filterOptionCheck()">Filter snps</input>
-        <input type="Checkbox" id="comparesnps" name="comparesnps" onchange="compareOptionCheck()">Compare snps</input>
-        <div id="compare-toggle-options" style="visibility:hidden">
-          <input type="radio" name="compare" id="compare-common" checked>Common</input>
-          <input type="radio" name="compare" id="compare-alternate">Alternate</input>
+        <div class="tooltip">
+          <img src="./images/help" alt="Filter SNPs." style="width:20px;height:20px;">
+          <span class="tooltiptext">This option will filter out SNPs that don't meet the conditions set out in the options below</span>
         </div>
 
-        <div id="filter-toggle-options" style="visibility:hidden">
+      </br>
+        <input type="Checkbox" id="compare-snps" name="comparesnps" onchange="compareOptionCheck()">Compare snps</input>
+
+        <div class="tooltip">
+          <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+          <span class="tooltiptext">This option will compare VCFs to find common SNPs or SNPs that are different at same position</span>
+        </div>
+
+
+
+        <div id="compare-toggle-options" style="display:none">
+          <input type="checkbox" name="compare-common" id="compare-common" checked>Find Common SNPs</input>
+          <input type="checkbox" name="compare-alternate" id="compare-alternate">Find Alternate SNPs</input>
+        </br>Both 'Find Common SNPs' and 'Find Alternate SNPs' can be checked at the same time. Two separate outputs (tab-delimited) are generate for common SNPs and alternate SNPs.
+        </div>
+
+        <div id="filter-toggle-options" style="display:none">
           <hr>
           Filtering parameters: </br> </br>
           Note: Values for the parameters below are defaults. Please change them as you wish. </br></br>
@@ -234,7 +290,7 @@
 
           <hr>
         </div>
-
+        <hr>
         <input class="btn" type="submit" id="submit" value="submit" align="middle" onclick="validate_on_click_submit_button()"/>
     </form>
 
@@ -248,22 +304,28 @@
 <script>
   function filterOptionCheck(){
     filterOptions = document.getElementById('filter-toggle-options')
-
-    if (filterOptions.style.visibility === 'hidden'){
-      filterOptions.style.visibility = 'visible';
+    if (filterOptions.style.display === 'none'){
+      filterOptions.style.display = 'inherit';
     } else {
-      filterOptions.style.visibility = 'hidden'
+      filterOptions.style.display = 'none'
     }
   }
   function compareOptionCheck(){
     compareOption = document.getElementById('compare-toggle-options')
-    console.log(compareOption)
-    if (compareOption.style.visibility == 'hidden'){
-      compareOption.style.visibility='visible'
+    if (compareOption.style.display == 'none'){
+      compareOption.style.display='inherit'
     } else {
-      compareOption.style.visibility='hidden'
+      compareOption.style.display='none'
     }
   }
+</script>
+<script>
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip();
+});
+$(document).ready(function(){
+    $('[data-toggle="popover"]').popover();
+});
 </script>
 
 
