@@ -100,16 +100,24 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
             Upload one or more VCF files: </br></br>
             <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple></br>
         </div>
-      </br>
+        </br>
         <button type="button" class="add_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Add</button>
         <button type="button" class="remove_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Remove</button>
+
+        <div id="multisamplesid" name="multiplesamplesname" style="display:inherit">
+
+            Multiple samples detected in an uploaded VCF file. The sample names are displayed below. SNPs from one sample can be compared at a time.
+            <h3>Select a sample name from your multisample VCF </h3>
+            <p id="multiplesamplesid"> </p>
+
+        </div>
 
         <hr>
         <h3> Select what you want to do </h3>
         <input type="checkbox" id="filter-snps" name="filtersnps" onchange="filterOptionCheck()">Filter SNPs</input>
 
         <div class="tooltip">
-          <img src="./images/help" alt="Filter SNPs." style="width:20px;height:20px;">
+          <img src="./images/help.jpeg" alt="Filter SNPs." style="width:20px;height:20px;">
           <span class="tooltiptext">This option will filter out SNPs that don't meet the conditions set out in the options below</span>
         </div>
 
@@ -117,9 +125,10 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
         <input type="Checkbox" id="compare-snps" name="comparesnps" onchange="compareOptionCheck()">Compare snps</input>
 
         <div class="tooltip">
-          <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+          <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
           <span class="tooltiptext">This option will compare VCFs to find common SNPs or SNPs that are different at same position</span>
         </div>
+
 
 
 
@@ -157,7 +166,6 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               </div>
           </div>
 
-
           <div class="row">
               <div class="column">
                   Minimum average per-sample depth of bases with Phred score >= 15 (ADP):
@@ -170,21 +178,6 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
                   </div>
               </div>
           </div>
-
-          <!--
-          <div class="row">
-              <div class="column">
-                  Minimum number of samples called reference (wild-type) (WT):
-              </div>
-              <div class="column">
-                  <input type="input" value=1 name="sample_called_reference">
-                  <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
-                    <span class="tooltiptext">tooltip here</span>
-                  </div>
-              </div>
-          </div>
-        -->
 
           <div class="row">
               <div class="column">
@@ -226,7 +219,6 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
                   </div>
               </div>
           </div>
-
 
           <div class="row">
               <div class="column">
@@ -292,7 +284,6 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
                   </div>
               </div>
           </div>
-
 
           <hr>
 
@@ -360,12 +351,22 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="./js/jquery-3.3.1.js"></script>
 <script src="./js/LineReader.js"></script>
 <script src="./js/validate_vcf.js"></script>
 <script src="./js/input_multiple_files.js"></script>
+<script src="./js/add_input_files.js"></script>
+
 
 <script>
+  function multisampleoption(){
+    multisamplesnamelist = document.getElementById('multisamplesid')
+    if(multisamplesnamelist === ''){
+      multisamplesnamelist.style.display = 'inherit';
+    } else {
+      multisamplesnamelist.style.display = 'none'
+    }
+  }
   function filterOptionCheck(){
     filterOptions = document.getElementById('filter-toggle-options')
     if (filterOptions.style.display === 'none'){

@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python3
 
 # Import modules for CGI handling
 import cgi, cgitb
@@ -43,13 +43,13 @@ compare_alternate_command="filter_compare_vcf.py"
 
 filter_command="python3 " + filter_pythonscript
 
-print "Content-type:text/html\r\n\r\n"
-print "<html>"
-print "<head>"
-print "<title>CGI Program</title>"
-print "</head>"
-print "<body>"
-print "<h2>Data provided are below</h2>"
+print("Content-type:text/html\r\n\r\n")
+print("<html>")
+print("<head>")
+print("<title>CGI Program</title>")
+print("</head>")
+print("<body>")
+print("<h2>Data provided are below</h2>")
 
 print("You have input following files:  </br>  </br>")
 if reference_sequence:
@@ -132,9 +132,9 @@ if depth_variant_support_reverse_strand:
 	print("Minimum Depth of variant-supporting bases on reverse strand (reads2minus) (ADR) : %s </br>") % depth_variant_support_reverse_strand
 	filter_command+=" --adr " + depth_variant_support_reverse_strand
 
-print"</br>Executed filter_command: </br></br>"
+print("</br>Executed filter_command: </br></br>")
 print(filter_command + "</br></br>")
 print(compare_common_command + "</br></br>")
 print(compare_alternate_command + "</br></br>")
-print "</body>"
-print "</html>"
+print("</body>")
+print("</html>")

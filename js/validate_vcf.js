@@ -67,37 +67,71 @@ const validate_vcf = function () {
         console.log(line);
         header_array = line.split("\t");
         console.log("header array length " + header_array.length);
-        if (header_array.length == 10) {
+        if (header_array.length == 10) {  // the header contains 9 columns + one sample = 10
           console.log("Header looks fine");
           read_header = true
         }
         else if (header_array.length > 10){
-          if (window.confirm("Multiple samples detected in a VCF file. Do you want to split the vcf file to one VCF per sample?")){
-            //userpressed = "User pressed ok"
-            // alert("You have confirmed to split the vcf records by sample" + header_array.slice(9).join(","))
-            var sample = prompt("Samples found are " + header_array.slice(9).join(",") + ". Enter the sample name to split out from the multisample VCF.")
-            if (sample == null || sample == ""){
-              //split all samples
-              var choice = "split_all_samples"
-            }
-            else {
-              //split specific sample, user defined
-              var choice = "split_sample"
-            }
-          }
-          else {
-            //userpressed = "user pressed cancel"
-            console.log("User canceled to split the multisample vcf.")
-            alert("You canceled to split multisample vcf by sample. This webtool will now consider only the first sample in the vcf file for processing.");
-          }
-        }
-
-        else {
-          isGood = false;
-          vcfalert("VCF", "");
-          // notvalid();
-
-        }
+          multiple_samples=header_array.slice(9)
+          document.getElementById('multiplesamplesid').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
+          console.log("Multiple sample names found: " + multiple_samples.join(","))
+        }        
+        //   if (window.confirm("Multiple samples detected in a VCF file. Do you want to split the vcf file to one VCF per sample?")){
+        //     userpressed = "User pressed ok"
+        //     alert("You have confirmed to split the vcf records by sample" + header_array.slice(9).join(","))
+        //
+        //
+        //       //  function createRadioButtonFromArray(array) {
+        //       //     var len = array.length;
+        //       //     var form = document.getElementById("form1");
+        //       //     for (var i = 0; i < len; i++){
+        //       //         var radio = document.createElement("input");
+        //       //             radio.type = "radio";
+        //       //             radio.name = "samplechoices";
+        //       //             radio.class = "radioButtons";
+        //       //             radio.value = i;
+        //       //             radio.id = "choice" + i;
+        //       //             //radio.id = array[i]
+        //       //         var radioText = document.createElement("div");
+        //       //             radioText.id = "c" + i;
+        //       //             radioText.class = "choiceText";
+        //       //             radioText.innerHTML = array[i];
+        //       //
+        //       //         form.appendChild(radio);
+        //       //         radio.appendChild(radioText);
+        //       //
+        //       //         document.getElementById("c" + i).innerHTML=array[i];
+        //       //
+        //       //
+        //       //     }
+        //       // }
+        //       // createRadioButtonFromArray(multiple_samples)
+        //
+        //     var sample = prompt("Samples found are " + header_array.slice(9).join(",") + ". Enter the sample name to split out from the multisample VCF.")
+        //     // Loop until the user gives a valid sample name
+        //     while ((sample == null || sample == "") || !(header_array.slice(9).includes(sample))){
+        //       alert("Invalid or null sample name entered.")
+        //       sample = prompt("Enter the sample name to split out from the multisample VCF.")
+        //     }
+        //
+        //     //split specific sample, user defined
+        //
+        //     alert("User selected sample name " + sample + ". Click OK to continue.")
+        //
+        //   }
+        //   else {
+        //     //userpressed = "user pressed cancel"
+        //     console.log("User canceled to split the multisample vcf.")
+        //     alert("You canceled to split multisample vcf by sample. This webtool will now consider only the first sample in the vcf file for processing.");
+        //   }
+        // }
+        //
+        // else {
+        //   isGood = false;
+        //   vcfalert("VCF", "");
+        //   // notvalid();
+        //
+        // }
       }
       else if (read_header === true) {
         snpcount += 1;

@@ -7,7 +7,12 @@ $(add_button).click(function(e){
     e.preventDefault();
     var total_fields = wrapper[0].childNodes.length;
     if(total_fields < max_fields){
-        $(wrapper).append('<input type="file" name="input_vcfs[]" required multiple> </br>');
+      var newVCFInput = '<input type="file" name="input_vcfs[]" required multiple>';
+
+      var $vcf = $(newVCFInput)
+      $($vcf).on('change', validate_vcf);
+      $(wrapper).append($vcf);
+      $(wrapper).append('<br>');
     }
 });
 $(remove_button).click(function(e){
