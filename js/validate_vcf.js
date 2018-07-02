@@ -72,40 +72,73 @@ const validate_vcf = function () {
           read_header = true
         }
         else if (header_array.length > 10){
-          multiple_samples=header_array.slice(9)
-          document.getElementById('multiplesamplesid').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
-          console.log("Multiple sample names found: " + multiple_samples.join(","))
-        }        
+          var multiple_samples=header_array.slice(9)
+          // document.getElementById('multiplesample_wrapper').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
+          console.log("Multiple sample names found: " + multiple_samples.join(","));
+
+          var multiplesample_wrapper = document.getElementById('multiplesample_wrapper');
+
+          var elementsToInsert = [];
+
+          // Creation of the input with radio type and the labels
+          for(var i = 0; i < multiple_samples.length; i++) {
+            var radio = document.createElement('input');
+            var label = document.createElement('label');
+            radio.type = 'radio';
+            radio.name = 'multisample';   // this has to be unique for each file, else user can select all samples
+            radio.value = multiple_samples[i];
+
+            // label.setAttribute("for", multiple_samples[i]); # this is optional, it works without for attribute
+            label.innerHTML = multiple_samples[i];
+            multiplesample_wrapper.appendChild(label);
+            multiplesample_wrapper.appendChild(radio);
+
+
+          //  elementsToInsert.push({ label: label, radio: radio });
+          }
+
+          // Insert the labels and input in a random order
+          // while(elementsToInsert.length !== 0) {
+          //   var randomIndex = Math.floor(Math.random() * elementsToInsert.length);
+          //
+          //   // Array.prototype.splice removes items from the Array and return the an array containing the removed items (See https://www.w3schools.com/jsref/jsref_splice.asp)
+          //   var toInsert = elementsToInsert.splice(randomIndex, 1)[0];
+          //
+          //
+          // }
+
+        }
         //   if (window.confirm("Multiple samples detected in a VCF file. Do you want to split the vcf file to one VCF per sample?")){
         //     userpressed = "User pressed ok"
         //     alert("You have confirmed to split the vcf records by sample" + header_array.slice(9).join(","))
         //
-        //
-        //       //  function createRadioButtonFromArray(array) {
-        //       //     var len = array.length;
-        //       //     var form = document.getElementById("form1");
-        //       //     for (var i = 0; i < len; i++){
-        //       //         var radio = document.createElement("input");
-        //       //             radio.type = "radio";
-        //       //             radio.name = "samplechoices";
-        //       //             radio.class = "radioButtons";
-        //       //             radio.value = i;
-        //       //             radio.id = "choice" + i;
-        //       //             //radio.id = array[i]
-        //       //         var radioText = document.createElement("div");
-        //       //             radioText.id = "c" + i;
-        //       //             radioText.class = "choiceText";
-        //       //             radioText.innerHTML = array[i];
-        //       //
-        //       //         form.appendChild(radio);
-        //       //         radio.appendChild(radioText);
-        //       //
-        //       //         document.getElementById("c" + i).innerHTML=array[i];
-        //       //
-        //       //
-        //       //     }
-        //       // }
-        //       // createRadioButtonFromArray(multiple_samples)
+            //
+            //    function createRadioButtonFromArray(array) {
+            //       var len = array.length;
+            //       var form = document.getElementById("form1");
+            //       for (var i = 0; i < len; i++){
+            //           var radio = document.createElement("input");
+            //               radio.type = "radio";
+            //               radio.name = "samplechoices";
+            //               radio.class = "radioButtons";
+            //               radio.value = i;
+            //               radio.id = "choice" + i;
+            //               //radio.id = array[i]
+            //           var radioText = document.createElement("div");
+            //               radioText.id = "c" + i;
+            //               radioText.class = "choiceText";
+            //               radioText.innerHTML = array[i];
+            //
+            //           radio.appendChild(radioText);
+            //
+            //           document.getElementById("c" + i).innerHTML=array[i];
+            //
+            //
+            //       }
+            //   }
+            //   if (multiple_samples.length > 10){
+            //   createRadioButtonFromArray(multiple_samples)
+            // }
         //
         //     var sample = prompt("Samples found are " + header_array.slice(9).join(",") + ". Enter the sample name to split out from the multisample VCF.")
         //     // Loop until the user gives a valid sample name
