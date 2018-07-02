@@ -11,13 +11,14 @@ const validate_vcf = function () {
   var isGood = true;
 
   var current = 0;
-
+  var currentfile="";
   function doNext(){
 
     if(isGood){
 
       if(current < files.length){
-        checkIt(files[current]);
+        currentfile=files[current];
+        checkIt(currentfile);
       }
       current++;
     } else {
@@ -72,11 +73,18 @@ const validate_vcf = function () {
           read_header = true
         }
         else if (header_array.length > 10){
+          multiplesamples_text = document.getElementById('multiplesamples')
+          if (multiplesamples_text.style.display === 'none'){
+            multiplesamples_text.style.display = 'inherit'
+          }
           var multiple_samples=header_array.slice(9)
           // document.getElementById('multiplesample_wrapper').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
           console.log("Multiple sample names found: " + multiple_samples.join(","));
 
           var multiplesample_wrapper = document.getElementById('multiplesample_wrapper');
+          if (multiplesample_wrapper.style.display === 'none'){
+            multiplesample_wrapper.style.display = 'inherit';
+          }
 
           var elementsToInsert = [];
 
@@ -85,7 +93,7 @@ const validate_vcf = function () {
             var radio = document.createElement('input');
             var label = document.createElement('label');
             radio.type = 'radio';
-            radio.name = 'multisample';   // this has to be unique for each file, else user can select all samples
+            radio.name = multiple_samples.join(",");   // this has to be unique for each file, else user can select all samples
             radio.value = multiple_samples[i];
 
             // label.setAttribute("for", multiple_samples[i]); # this is optional, it works without for attribute

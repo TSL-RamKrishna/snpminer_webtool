@@ -103,15 +103,12 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
         </br>
         <button type="button" class="add_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Add</button>
         <button type="button" class="remove_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Remove</button>
-
-        <div id="multisamplesid" name="multiplesamplesname" style="display:inherit">
-
+        <p id="multiplesamples" style="display:none">
             Multiple samples detected in an uploaded VCF file. The sample names are displayed below. SNPs from one sample can be compared at a time.
-            <h3>Select a sample name from your multisample VCF </h3>
-            <p id="multiplesamplesid"> </p>
-
-        </div>
-
+            <div id="multiplesample_wrapper" name="multiplesamplesname" style="display:none">
+              <h3>Select a sample name from your multisample VCF for processing</h3>
+            </div>
+        </p>
         <hr>
         <h3> Select what you want to do </h3>
         <input type="checkbox" id="filter-snps" name="filtersnps" onchange="filterOptionCheck()">Filter SNPs</input>
