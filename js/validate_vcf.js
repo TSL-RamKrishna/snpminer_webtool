@@ -81,29 +81,44 @@ const validate_vcf = function () {
           // document.getElementById('multiplesample_wrapper').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
           console.log("Multiple sample names found: " + multiple_samples.join(","));
 
-          var multiplesample_wrapper = document.getElementById('multiplesample_wrapper');
-          if (multiplesample_wrapper.style.display === 'none'){
-            multiplesample_wrapper.style.display = 'inherit';
-          }
+          // var multiplesample_wrapper = document.getElementById('multiplesample_wrapper');
+          // if (multiplesample_wrapper.style.display === 'none'){
+          //   multiplesample_wrapper.style.display = 'inherit';
+          // }
 
-          var elementsToInsert = [];
+          multiplesamplespara = document.getElementById("input_files_wrap_id");
+
+          var newdiv = document.createElement("div");
+          newdiv.id =  "divid_" + multiple_samples.join(",");
+          newdiv.name =  "divname_" + multiple_samples.join(",");
+          newdiv.style = "background-color:lightblue; display:inherit";
+
+          // var para = document.createElement("p");//create <p>
+          var text = document.createTextNode("Multiple samples detected in an uploaded file. Please selected one sample. ");//
+          newdiv.appendChild(text);//append text to para
+
+          // var elementsToInsert = [];
 
           // Creation of the input with radio type and the labels
           for(var i = 0; i < multiple_samples.length; i++) {
-            var radio = document.createElement('input');
-            var label = document.createElement('label');
-            radio.type = 'radio';
-            radio.name = multiple_samples.join(",");   // this has to be unique for each file, else user can select all samples
-            radio.value = multiple_samples[i];
+            var check = document.createElement("input");
+            // label = document.createElement('label');
+            check.type = "checkbox";
+            check.name = multiple_samples.join(",");   // this has to be unique for each file, else user can select all samples
+            check.value = multiple_samples[i];
 
             // label.setAttribute("for", multiple_samples[i]); # this is optional, it works without for attribute
-            label.innerHTML = multiple_samples[i];
-            multiplesample_wrapper.appendChild(label);
-            multiplesample_wrapper.appendChild(radio);
+            //label.innerHTML = multiple_samples[i] ;
+            newdiv.appendChild(label);
+            newdiv.appendChild(check);
 
-
-          //  elementsToInsert.push({ label: label, radio: radio });
+            //  elementsToInsert.push({ label: label, radio: radio });
           }
+
+          // divelement.appendChild(para);// append <p> to <div> and assign to variable
+          document.body.append(newdiv)
+          $(newdiv).insertBefore("#select_what_you_want")
+
 
           // Insert the labels and input in a random order
           // while(elementsToInsert.length !== 0) {

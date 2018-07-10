@@ -1,4 +1,4 @@
-var counter = 1;
+var counter = 10;
 var limit = 2;
 function addInput(name){
     if (counter == limit)  {

@@ -96,7 +96,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
         <h3>Input VCF format files</h3>
 
         Select and upload a one or multiple VCF files for filter and/or comparing SNPs using each add button </br>
-        <div class="input_files_wrap">
+        <div class="input_files_wrap" id="input_files_wrap_id">
             Upload one or more VCF files: </br></br>
             <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple></br>
         </div>
@@ -105,12 +105,10 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
         <button type="button" class="remove_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Remove</button>
         <p id="multiplesamples" style="display:none">
             Multiple samples detected in an uploaded VCF file. The sample names are displayed below. SNPs from one sample can be compared at a time.
-            <div id="multiplesample_wrapper" name="multiplesamplesname" style="display:none">
-              <h3>Select a sample name from your multisample VCF for processing</h3>
-            </div>
+
         </p>
         <hr>
-        <h3> Select what you want to do </h3>
+        <h3 id="select_what_you_want"> Select what you want to do </h3>
         <input type="checkbox" id="filter-snps" name="filtersnps" onchange="filterOptionCheck()">Filter SNPs</input>
 
         <div class="tooltip">
@@ -157,7 +155,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=80 name="variant_allele_freq">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if the SNP being called has frequency below this value</span>
                   </div>
               </div>
@@ -170,7 +168,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=3 name="per_sample_depth">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if the number of bases (if one sample) or average number of bases per sample (if multi sample) with phred score >=15 contribute to the SNP call is below this value</span>
                   </div>
               </div>
@@ -183,12 +181,10 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=3 name="raw_read_depth">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if the number of raw reads that cover the SNP is below this value</span>
                   </div>
               </div>
-
-
           </div>
 
           <div class="row">
@@ -198,7 +194,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=10 name="quality_read_depth">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Same as ADP (mutlisample). Remove if number of bases with Phred score >=15 that call SNP is below this value.</span>
                   </div>
               </div>
@@ -211,7 +207,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=0 name="ref_support_read_depth">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if number of bases supporting reference is below this value</span>
                   </div>
               </div>
@@ -224,7 +220,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=3 name="variant_read_depth">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if number of bases supporting variant call is below this</span>
                   </div>
               </div>
@@ -237,7 +233,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=0 name="depth_ref_support_forward_strand">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">In SNPs from paired end data, remove it, if number of bases on forward strand supporting reference is below this value. </span>
                   </div>
               </div>
@@ -250,7 +246,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=0 name="depth_ref_support_reverse_strand">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">In SNPs from paired end data, remove it, if number of bases on reverse strand supporting reference is below this value. </span>
                   </div>
               </div>
@@ -263,7 +259,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=3 name="depth_variant_support_forward_strand">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">In SNPs from paired end data, remove it, if number of bases on forward strand supporting variant call is below this value. </span>
                   </div>
               </div>
@@ -276,7 +272,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=0 name="depth_variant_support_reverse_strand">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">In SNPs from paired end data, remove it, if number of bases on reverse strand supporting variant call is below this value. </span>
                   </div>
               </div>
@@ -292,7 +288,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=10 name="genotype_quality">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if the genotyp quality is below this value.</span>
                   </div>
               </div>
@@ -305,7 +301,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=0 name="avg_qual_ref_support_bases">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if average quality of reference supporting bases is below this value</span>
                   </div>
               </div>
@@ -318,7 +314,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="input" value=10 name="avg_qual_variant_support_bases">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if average quality of variant supporting bases is below this value</span>
                   </div>
               </div>
@@ -334,7 +330,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
               <div class="column">
                   <input type="number" value=0.05 id="pvalue" name="pvalue" min="0.01" max="1.0" step="0.01">
                   <div class="tooltip">
-                    <img src="./images/help" alt="Compare SNPs." style="width:20px;height:20px;">
+                    <img src="./images/help.jpeg" alt="Compare SNPs." style="width:20px;height:20px;">
                     <span class="tooltiptext">Remove if pvalue of the variant call is over this value</span>
                   </div>
               </div>
