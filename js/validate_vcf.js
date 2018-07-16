@@ -79,7 +79,7 @@ const validate_vcf = function () {
           }
           var multiple_samples=header_array.slice(9)
           // document.getElementById('multiplesample_wrapper').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
-          console.log("Multiple sample names found: " + multiple_samples.join(","));
+          console.log("Multiple sample names found: " + multiple_samples.join("-"));
 
           // var multiplesample_wrapper = document.getElementById('multiplesample_wrapper');
           // if (multiplesample_wrapper.style.display === 'none'){
@@ -89,12 +89,12 @@ const validate_vcf = function () {
           multiplesamplespara = document.getElementById("input_files_wrap_id");
 
           var newdiv = document.createElement("div");
-          newdiv.id =  "divid_" + multiple_samples.join(",");
-          newdiv.name =  "divname_" + multiple_samples.join(",");
+          newdiv.id =  "divid_" + multiple_samples.join("-");
+          newdiv.name =  "divname_" + multiple_samples.join("-");
           newdiv.style = "background-color:lightblue; display:inherit";
 
           // var para = document.createElement("p");//create <p>
-          var text = document.createTextNode("Multiple samples detected in an uploaded file. Please selected one sample. ");//
+          var text = document.createTextNode("Multiple samples detected in an uploaded file. Please select samples (one or more) of interest to analyse. ");//
           newdiv.appendChild(text);//append text to para
 
           // var elementsToInsert = [];
@@ -102,13 +102,17 @@ const validate_vcf = function () {
           // Creation of the input with radio type and the labels
           for(var i = 0; i < multiple_samples.length; i++) {
             var check = document.createElement("input");
-            // label = document.createElement('label');
+            var label = document.createElement('label');
             check.type = "checkbox";
-            check.name = multiple_samples.join(",");   // this has to be unique for each file, else user can select all samples
+            check.name = multiple_samples.join("-");   // this has to be unique for each file, else user can select all samples
             check.value = multiple_samples[i];
+            check.width = "32";
+            check.height = "32";
+            check.class = multiple_samples.join("-");
+            check.id = multiple_samples.join("-");
 
-            // label.setAttribute("for", multiple_samples[i]); # this is optional, it works without for attribute
-            //label.innerHTML = multiple_samples[i] ;
+            label.setAttribute("for", multiple_samples[i]); // this is optional, it works without for attribute
+            label.innerHTML = multiple_samples[i] ;
             newdiv.appendChild(label);
             newdiv.appendChild(check);
 
@@ -116,78 +120,44 @@ const validate_vcf = function () {
           }
 
           // divelement.appendChild(para);// append <p> to <div> and assign to variable
+          // question to merge
+
+          var question = "<div id=question_" + multiple_samples.join("-") + " style=\"display: none;\"><label>Do you want to merge mulitple samples? <input type=\"checkbox\"></label></div>"
+
           document.body.append(newdiv)
           $(newdiv).insertBefore("#select_what_you_want")
+          $(question).insertBefore('#select_what_you_want')
+
+          // function to check the length of checkboxes selected and display question
+          var d1=$('#' + "divid_" + multiple_samples.join("-"))
+          var checkboxes = d1.find('input[type=checkbox]');
+          var questionBox = $('#' + 'question_' + multiple_samples.join("-"));
+
+          console.log('#' + "divid_" + multiple_samples.join("-"))
+          console.log(d1);
+          console.log(checkboxes);
+          console.log(questionBox);
+
+          checkboxes.on('change', function () {
+
+              console.log(checkboxes);
+              var checkedCount = checkboxes.filter(function () {
+                  return this.checked;
+              }).length;
+
+              console.log(checkedCount);
+              if (checkedCount > 1) {
+
+                  questionBox.show();
+              } else {
+                  questionBox.hide();
+              }
 
 
-          // Insert the labels and input in a random order
-          // while(elementsToInsert.length !== 0) {
-          //   var randomIndex = Math.floor(Math.random() * elementsToInsert.length);
-          //
-          //   // Array.prototype.splice removes items from the Array and return the an array containing the removed items (See https://www.w3schools.com/jsref/jsref_splice.asp)
-          //   var toInsert = elementsToInsert.splice(randomIndex, 1)[0];
-          //
-          //
-          // }
+          })
 
         }
-        //   if (window.confirm("Multiple samples detected in a VCF file. Do you want to split the vcf file to one VCF per sample?")){
-        //     userpressed = "User pressed ok"
-        //     alert("You have confirmed to split the vcf records by sample" + header_array.slice(9).join(","))
-        //
-            //
-            //    function createRadioButtonFromArray(array) {
-            //       var len = array.length;
-            //       var form = document.getElementById("form1");
-            //       for (var i = 0; i < len; i++){
-            //           var radio = document.createElement("input");
-            //               radio.type = "radio";
-            //               radio.name = "samplechoices";
-            //               radio.class = "radioButtons";
-            //               radio.value = i;
-            //               radio.id = "choice" + i;
-            //               //radio.id = array[i]
-            //           var radioText = document.createElement("div");
-            //               radioText.id = "c" + i;
-            //               radioText.class = "choiceText";
-            //               radioText.innerHTML = array[i];
-            //
-            //           radio.appendChild(radioText);
-            //
-            //           document.getElementById("c" + i).innerHTML=array[i];
-            //
-            //
-            //       }
-            //   }
-            //   if (multiple_samples.length > 10){
-            //   createRadioButtonFromArray(multiple_samples)
-            // }
-        //
-        //     var sample = prompt("Samples found are " + header_array.slice(9).join(",") + ". Enter the sample name to split out from the multisample VCF.")
-        //     // Loop until the user gives a valid sample name
-        //     while ((sample == null || sample == "") || !(header_array.slice(9).includes(sample))){
-        //       alert("Invalid or null sample name entered.")
-        //       sample = prompt("Enter the sample name to split out from the multisample VCF.")
-        //     }
-        //
-        //     //split specific sample, user defined
-        //
-        //     alert("User selected sample name " + sample + ". Click OK to continue.")
-        //
-        //   }
-        //   else {
-        //     //userpressed = "user pressed cancel"
-        //     console.log("User canceled to split the multisample vcf.")
-        //     alert("You canceled to split multisample vcf by sample. This webtool will now consider only the first sample in the vcf file for processing.");
-        //   }
-        // }
-        //
-        // else {
-        //   isGood = false;
-        //   vcfalert("VCF", "");
-        //   // notvalid();
-        //
-        // }
+
       }
       else if (read_header === true) {
         snpcount += 1;
