@@ -79,7 +79,7 @@ const validate_vcf = function () {
           }
           var multiple_samples=header_array.slice(9)
           // document.getElementById('multiplesample_wrapper').innerHTML=multiple_samples.join(","); // returning the list of sample list to the html page
-          console.log("Multiple sample names found: " + multiple_samples.join("-"));
+          console.log("Multiple sample names found: " + multiple_samples.join("_"));
 
           // var multiplesample_wrapper = document.getElementById('multiplesample_wrapper');
           // if (multiplesample_wrapper.style.display === 'none'){
@@ -89,13 +89,16 @@ const validate_vcf = function () {
           multiplesamplespara = document.getElementById("input_files_wrap_id");
 
           var newdiv = document.createElement("div");
-          newdiv.id =  "divid_" + multiple_samples.join("-");
-          newdiv.name =  "divname_" + multiple_samples.join("-");
+          newdiv.id =  "divid_" + multiple_samples.join("_");
+          newdiv.name =  "divname_" + multiple_samples.join("_");
           newdiv.style = "background-color:lightblue; display:inherit";
 
           // var para = document.createElement("p");//create <p>
-          var text = document.createTextNode("Multiple samples detected in an uploaded file. Please select samples (one or more) of interest to analyse. ");//
+          var text = document.createTextNode("Please select samples (one or more) of interest to analyse.   ");
+          var newline = document.createElement("br");
+
           newdiv.appendChild(text);//append text to para
+          newdiv.appendChild(newline);
 
           // var elementsToInsert = [];
 
@@ -104,12 +107,12 @@ const validate_vcf = function () {
             var check = document.createElement("input");
             var label = document.createElement('label');
             check.type = "checkbox";
-            check.name = multiple_samples.join("-");   // this has to be unique for each file, else user can select all samples
+            check.name = "multiplesamples_" + multiple_samples.join("_");   // this has to be unique for each file, else user can select all samples
             check.value = multiple_samples[i];
             check.width = "32";
             check.height = "32";
-            check.class = multiple_samples.join("-");
-            check.id = multiple_samples.join("-");
+            check.class = multiple_samples.join("_");
+            check.id = multiple_samples.join("_");
 
             label.setAttribute("for", multiple_samples[i]); // this is optional, it works without for attribute
             label.innerHTML = multiple_samples[i] ;
@@ -122,18 +125,18 @@ const validate_vcf = function () {
           // divelement.appendChild(para);// append <p> to <div> and assign to variable
           // question to merge
 
-          var question = "<div id=question_" + multiple_samples.join("-") + " style=\"display: none;\"><label>Do you want to merge mulitple samples? <input type=\"checkbox\"></label></div>"
+          var question = "<div id=question_" + multiple_samples.join("_") + " style=\"display: none;\"><label>You have selected multiple samples. Do you want to combine these selected samples as one? <input name=name_question_" + multiple_samples.join("_") + " id=id_question_" + multiple_samples.join("_") + " type=\"checkbox\"></label></div><br><br>"
 
           document.body.append(newdiv)
           $(newdiv).insertBefore("#select_what_you_want")
           $(question).insertBefore('#select_what_you_want')
 
           // function to check the length of checkboxes selected and display question
-          var d1=$('#' + "divid_" + multiple_samples.join("-"))
+          var d1=$('#' + "divid_" + multiple_samples.join("_"))
           var checkboxes = d1.find('input[type=checkbox]');
-          var questionBox = $('#' + 'question_' + multiple_samples.join("-"));
+          var questionBox = $('#' + 'question_' + multiple_samples.join("_"));
 
-          console.log('#' + "divid_" + multiple_samples.join("-"))
+          console.log('#' + "divid_" + multiple_samples.join("_"))
           console.log(d1);
           console.log(checkboxes);
           console.log(questionBox);

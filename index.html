@@ -70,8 +70,7 @@
   SNPtool to filter and compare the SNPs
 </h2>
 <p style="font-size:16px; margin-left:20px;">
-SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF files that do not meet the criteria specified in the filter options. This tool is also capable of comparing the SNPs in two or more VCFs (if this option is ticked) to obtain common SNPs in all VCFs or SNPs in a VCF that are not found in the other VCFs
-</p>
+SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF files that do not meet the criteria specified in the filter options. This tool is also capable of comparing the SNPs positions in two or more VCFs (if this option is ticked) to obtain common SNPs in all VCFs or unique SNPs that are not present in any other samples</p>
 
 <h3>How to use this webtool</h3>
 <p>
@@ -88,23 +87,23 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
 <h2>Let's use SNPtool now</h2>
 
     <hr>
-    <form action="./cgi-bin/snpminer.py" method="get" enctype="multipart/form-data">
-        <h3>Input reference sequence (FASTA) or length data (txt)</h3> <br/>
+    <form action="./cgi-bin/snpminer.py" method="post">
+        <h3>Input reference sequence (FASTA) or length data (txt)</h3> <br>
 
-        <input type="file" name="reference_sequence" accept=".fa, .fasta, .txt"/> <br/></br>
+        <input type="file" name="reference_sequence" accept=".fa, .fasta, .txt"/> <br><br>
         <hr>
         <h3>Input VCF format files</h3>
 
-        Select and upload a one or multiple VCF files for filter and/or comparing SNPs using each add button </br>
+        You can select and upload a one or multiple VCF files for filter and/or comparing SNPs using each add button <br>
         <div class="input_files_wrap" id="input_files_wrap_id">
-            Upload one or more VCF files: </br></br>
-            <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple></br>
+            Now upload one or more VCF files: <br><br>
+            <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple><br>
         </div>
-        </br>
+        <br>
         <button type="button" class="add_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Add</button>
         <button type="button" class="remove_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Remove</button>
         <p id="multiplesamples" style="display:none">
-            Multiple samples detected in an uploaded VCF file. The sample names are displayed below. SNPs from one sample can be compared at a time.
+            Multiple samples detected in an uploaded VCF file. The sample names are displayed below. You can select one or multiple samples from a VCF and also combine the selected samples to one sample.
 
         </p>
         <hr>
@@ -116,7 +115,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
           <span class="tooltiptext">This option will filter out SNPs that don't meet the conditions set out in the options below</span>
         </div>
 
-      </br>
+      <br>
         <input type="Checkbox" id="compare-snps" name="comparesnps" onchange="compareOptionCheck()">Compare snps</input>
 
         <div class="tooltip">
@@ -124,26 +123,23 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
           <span class="tooltiptext">This option will compare VCFs to find common SNPs or SNPs that are different at same position</span>
         </div>
 
-
-
-
         <div id="compare-toggle-options" style="display:none">
           <input type="checkbox" name="compare-common" id="compare-common" checked>Find Common SNPs</input>
-          <input type="checkbox" name="compare-alternate" id="compare-alternate">Find Alternate SNPs</input>
-        </br>Both 'Find Common SNPs' and 'Find Alternate SNPs' can be checked at the same time. Two separate outputs (tab-delimited) are generate for common SNPs and alternate SNPs.
+          <input type="checkbox" name="compare-alternate" id="compare-alternate">Find Unique SNPs</input>
+        <br>Both 'Find Common SNPs' and 'Find Alternate SNPs' can be checked at the same time. Two separate outputs (tab-delimited) are generate for common SNPs and alternate SNPs.
         </div>
 
         <div id="filter-toggle-options" style="display:none">
           <hr>
-          Filtering parameters: </br> </br>
-          Note: Values for the parameters below are defaults. Please change them as you wish. </br></br>
+          Filtering parameters: <br> <br>
+          Note: Values for the parameters below are defaults. Please change them as you wish. <br><br>
 
           <hr>
 
           <h3>Genotyping</h3>
 
           Genotype: <input type="radio" id="Genotype" name="genotype" value="Homozygous" checked> Homozygous
-          <input type="radio" id="Genotype" name="genotype" value="Heterozygous"> Heterozygous </br></br>
+          <input type="radio" id="Genotype" name="genotype" value="Heterozygous"> Heterozygous <br><br>
 
           <hr>
 
