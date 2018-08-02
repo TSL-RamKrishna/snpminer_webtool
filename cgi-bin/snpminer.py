@@ -62,7 +62,7 @@ for key in form.keys():
         variable = str(key)
         value = str(form.getvalue(variable))
         print("<p>"+ variable + ", "+ value +"</p>")
-		
+
 if reference_sequence:
 	print("Reference Sequence: {} </br> </br>".format(reference_sequence))
 
@@ -149,3 +149,39 @@ print(compare_common_command + "</br></br>")
 print(compare_unique_command + "</br></br>")
 print("</body>")
 print("</html>")
+
+
+
+# ok, first lets break down the multisample vcf file to individual samples
+
+def filter_multisample(namearray):
+    array=[]
+    for name in namearray:
+        if name.startswith("multiplesample_"):
+            array.append(name)
+    return array
+
+def add_extension(data):
+    text=[]
+    for x in data:
+        text.append(text + ".vcf.gz")
+
+    return text
+
+out=open("output.log", 'w')
+multiplesamples_keys=filter_multisample(form.keys())
+out.write(multiplesamples_keys + "\n")
+for key in multiplesamples_keys:
+    samples=key.replace("multiplesamples_")
+    #just break the sampless to individual samples
+    for sample in form[key]:
+        os.system("perl -I lib ./vcftoolScripts/vcf-subset --columns " + sample + " > " + sample + ".vcf")
+
+    if form["name_question_" + samples] == "on":
+        # need to merge the samples later
+        for sample in form[key]:
+            os.system("./otherscripts/bgzip " + sample + ".vcf; ./otherscripts/tabix " + sample + ".vcf.gz")
+        os.system("perl -I lib ./vcftoolScripts/vcf-merge " + " ".join(add_extension(form[key])) + " > " + "_".join(form[key]))
+    else:
+        # no need to merge, the samples are individual
+        pass
