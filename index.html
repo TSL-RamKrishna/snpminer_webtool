@@ -87,7 +87,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
 <h2>Let's use SNPtool now</h2>
 
     <hr>
-    <form action="./cgi-bin/snpminer.py" method="post">
+    <form action="./cgi-bin/snpminer.py" method="post" name="snpminer">
         <h3>Input reference sequence (FASTA) or length data (txt)</h3> <br>
 
         <input type="file" name="reference_sequence" accept=".fa, .fasta, .txt"/> <br><br>
@@ -382,7 +382,14 @@ $(document).ready(function(){
     $('[data-toggle="popover"]').popover();
 });
 </script>
-
+<script type="text/javascript">
+    $(function () {
+        $('#btn').click(function () {
+            alert($('input[type=file]').val());
+            return false;
+        });
+    });
+</script>
 
 </body>
 </html>

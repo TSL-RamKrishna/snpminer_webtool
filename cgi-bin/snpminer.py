@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
-import sys
+import sys, os
+from subprocess import Popen, PIPE
 # Import modules for CGI handling
 import cgi, cgitb
 
@@ -157,31 +158,62 @@ print("</html>")
 def filter_multisample(namearray):
     array=[]
     for name in namearray:
-        if name.startswith("multiplesample_"):
+        if name.startswith("multiplesamples_"):
             array.append(name)
     return array
 
 def add_extension(data):
     text=[]
     for x in data:
-        text.append(text + ".vcf.gz")
+        text.append(x + ".vcf.gz")
 
     return text
 
+def read_vcf_get_header(vcf):
+    handle = open(vcf)
+    for line in handle:
+        if line.startswith("#CHROM"):
+            break
+    handle.close()
+    return line
+
+def get_number_of_samples_from_vcf(vcf):
+    handle=open(vcf)
+    for line in handle:
+        if line.startswith("#CHROM"):
+            break
+    handle.close()
+    return line.split("\t")[9:]
+
 out=open("output.log", 'w')
 multiplesamples_keys=filter_multisample(form.keys())
-out.write(multiplesamples_keys + "\n")
-for key in multiplesamples_keys:
-    samples=key.replace("multiplesamples_")
-    #just break the sampless to individual samples
-    for sample in form[key]:
-        os.system("perl -I lib ./vcftoolScripts/vcf-subset --columns " + sample + " > " + sample + ".vcf")
+out.write(" ".join(multiplesamples_keys) + "\n")
+for filename in input_vcfs:
+    samples=get_number_of_samples_from_vcf(filename)
+    if len(samples) > 1:   # header has 9 columns + n number of samples
+        # this is multiple sample vcf
+        multisampleid="multiplesample_" + "_".join(samples)
+        question = "name_question_" + "_".join(samples)
+        selected_samples = form.getvalue(multisampleid)
+        out.write(multisampleid + question  + "\n")
+        if question in form.keys() and form.getvalue(question) == 'on':
+            #separate the samples and merge the samples
+            for sample in samples:
+                out.write("processing sample " + str(sample) + "\n")
+                cmd="perl -I ../lib ../vcftoolScripts/vcf-subset --columns " + sample + " " + filename + " > " + sample + ".vcf"
+                out.write(cmd + "\n")
+                os.system(cmd)
+                cmd="../otherscripts/bgzip " + sample + ".vcf; ../otherscripts/tabix " + sample + ".vcf.gz"
+                out.write(cmd + "\n")
+                os.system(cmd)
 
-    if form["name_question_" + samples] == "on":
-        # need to merge the samples later
-        for sample in form[key]:
-            os.system("./otherscripts/bgzip " + sample + ".vcf; ./otherscripts/tabix " + sample + ".vcf.gz")
-        os.system("perl -I lib ./vcftoolScripts/vcf-merge " + " ".join(add_extension(form[key])) + " > " + "_".join(form[key]))
+        out.write("Now merging them\n")
+        cmd = "perl -I ../lib ../vcftoolScripts/vcf-merge " + " ".join(add_extension(samples)) + " > " + "_".join(samples) + ".vcf"
+        out.write(cmd + "\n")
+        os.system(cmd)
     else:
-        # no need to merge, the samples are individual
-        pass
+        # only one sample
+        out.write("only one sample here")
+        cmd="../otherscripts/bgzip " + samples[0] + ".vcf; ../otherscripts/tabix " + samples[0] + ".vcf.gz"
+        out.write(cmd + "\n")
+        os.system(cmd)
