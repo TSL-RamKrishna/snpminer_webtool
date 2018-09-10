@@ -29,7 +29,7 @@ const validate_vcf = function () {
   doNext()
   //
   function notvalid() {
-    $(this)[0].val("");
+    $(this)[0].val()="";
     console.error('BAD!');
   }
 
@@ -107,7 +107,7 @@ const validate_vcf = function () {
             var check = document.createElement("input");
             var label = document.createElement('label');
             check.type = "checkbox";
-            check.name = "multiplesamples_" + multiple_samples.join("_") + "_filename_" + currentfile;   // this has to be unique for each file, else user can select all samples
+            check.name = "multiplesamples_" + multiple_samples.join("_");   // this has to be unique for each file, else user can select all samples
             check.value = multiple_samples[i];
             check.width = "32";
             check.height = "32";
@@ -190,4 +190,4 @@ const validate_vcf = function () {
 
 };
 
-$('input[name="input_vcfs[]"]').on('change', validate_vcf);
+$('input[name="input_vcfs"]').on('change', validate_vcf);

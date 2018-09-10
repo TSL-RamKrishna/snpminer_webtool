@@ -6,7 +6,7 @@ function addInput(name){
     }
     else {
         var newdiv = document.createElement('div');
-        newdiv.innerHTML = "Entry " + (counter + 1) + " <br><input type='file' name='input_vcfs[]'>";
+        newdiv.innerHTML = "Entry " + (counter + 1) + " <br><input type='file' name='input_vcfs'>";
         document.getElementById(name).appendChild(newdiv);
         counter++;
     }

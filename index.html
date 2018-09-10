@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html>
 <head>
   <title>snpminer</title>
 </head>
-<meta name="SNPFilter" content="width=device-width, initial-scale=1">
+<meta name="SNPFilter" content="width=device-width, initial-scale=1" charset='UTF-8'>
 <link rel="stylesheet" href="./css/w3.css">
 <link rel="stylesheet" href="./css/tooltip.css">
 <style>
@@ -87,7 +88,7 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
 <h2>Let's use SNPtool now</h2>
 
     <hr>
-    <form action="./cgi-bin/snpminer.py" method="post" name="snpminer">
+    <form action="cgi-bin/snpminer.py" method="POST" name="snpminer" enctype="multipart/form-data">
         <h3>Input reference sequence (FASTA) or length data (txt)</h3> <br>
 
         <input type="file" name="reference_sequence" accept=".fa, .fasta, .txt"/> <br><br>
@@ -95,9 +96,9 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
         <h3>Input VCF format files</h3>
 
         You can select and upload a one or multiple VCF files for filter and/or comparing SNPs using each add button <br>
+		Now upload one or more VCF files: <br><br>
         <div class="input_files_wrap" id="input_files_wrap_id">
-            Now upload one or more VCF files: <br><br>
-            <input type="file" name="input_vcfs[]" accept=".vcf" id="upload" required multiple><br>
+            <input type="file" name="input_vcfs" accept=".vcf" id="upload" required multiple><br>
         </div>
         <br>
         <button type="button" class="add_field_button" style="border-radius:8px;background:lightskyblue;font-weight:bold">Add</button>
@@ -344,8 +345,8 @@ SNPtool is capable to filter out the SNPs (if this option is ticked) in your VCF
 <script src="./js/LineReader.js"></script>
 <script src="./js/validate_vcf.js"></script>
 <script src="./js/input_multiple_files.js"></script>
-<script src="./js/add_input_files.js"></script>
-<script src="./js/count_checkbox_selected.js"></script>
+<!-- <script src="./js/add_input_files.js"></script> -->
+<!-- <script src="./js/count_checkbox_selected.js"></script> -->
 
 
 <script>
