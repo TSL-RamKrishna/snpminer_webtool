@@ -3,11 +3,19 @@
 import sys, os
 from subprocess import Popen, PIPE
 # Import modules for CGI handling
-import cgi, cgitb; cgitb.enable()
-import shutil
+import cgi, cgitb
 
-dir_upload=os.path.dirname(sys.argv[0]) + "/../uploads/"
+#dir_upload=os.path.dirname(sys.argv[0]) + "/../uploads/"
+rootdir = os.path.dirname(sys.argv[0]) + "/../"
+dir_upload=rootdir + "uploads/"
+dir_process=rootdir + "process/"
+log_dir=rootdir + "log"
+if not os.path.exists(dir_upload):
+	os.makedirs(dir_upload)
+if not os.path.exists(dir_process):
+	os.makedirs(dir_process)
 
+cgitb.enable(logdir=log_dir)
 # Create instance of FieldStorage
 form = cgi.FieldStorage()
 # Get data from fields
@@ -15,8 +23,9 @@ form = cgi.FieldStorage()
 
 resistant_sample_vcfs = form.getvalue('resistant_sample_vcfs')
 susceptible_sample_vcfs = form.getvalue('susceptible_sample_vcfs')
+
 reference_sequence = form.getvalue('reference_sequence')
-tnput_vcfs = form.getlist("input_vcfs")
+#input_vcfs = form.getvalue("input_vcfs")
 filtersnps = form.getvalue("filter-snps")
 compare_common = form.getvalue("compare-common")
 compare_unique =  form.getvalue("compare-alternate")
@@ -41,13 +50,6 @@ depth_variant_support_forward_strand = form.getvalue('depth_variant_support_forw
 depth_variant_support_reverse_strand = form.getvalue('depth_variant_support_reverse_strand')
 
 
-
-
-def upload_files(filename):
-	fileitem=filename
-	basefilename = os.path.basename(fileitem.filename)
-	open(dir_upload.strip("/") + "/" + basefilename, 'wb').write(fileitem.file.read(250000))
-
 #print(comparesnps, compare)
 filter_pythonscript="filter_compare_vcf.py"
 compare_common_command="filter_compare_vcf.py"
@@ -61,6 +63,11 @@ print("<head>")
 print("<title>CGI Program</title>")
 print("</head>")
 print("<body>")
+print("<p>HTML options are below:</p>")
+for key in form.keys():
+	print("<p>" + key + "</p>")
+
+
 print("<h2>Data provided are below</h2>")
 
 print("You have input following files:  </br>  </br>")
@@ -69,26 +76,35 @@ value = ""
 r = ""
 
 
-#print('<p>' + " ".join(form.getlist("input_vcfs")) + '</p>')
-# codes to update user input files
 
+reference_sequence = form['reference_sequence'].filename
+input_vcfs=[]
 if 'input_vcfs' in form:
 	filefield=form['input_vcfs']
 	if not isinstance(filefield, list):
-		print('<p> file instance is not list')
+		print('<p> file instance is not list</p>')
 		filefield=[filefield]
 	else:
 		print('<p>File instance is a list. </p>')
 
 	for fileitem in filefield:
-		if fileitem.file:
-			print('<p>' + str(fileitem.file.name) + '</p>')
-			fn = fileitem.file.name
-			with open(dir_upload + os.path.basename(fn), 'wb') as f:
-				shutil.copyfileobj(fileitem.file, f)
-				print('<p>' + str(fn) + " uploaded </p>")
+		if fileitem.filename:
+			fn=os.path.basename(fileitem.filename)
+			input_vcfs.append(fn)
+			try:
+				with open(dir_upload + fn, 'wb') as fout:
+					while True:
+						chunk = fileitem.file.read(10000)
+						if not chunk:
+							break
+						fout.write(chunk)
+				print('<p>' + fn + " uploaded </p>")
+
+			except:
+				print('<p>' + fn + " upload failed </p>")
+
 		else:
-			print('<p>' + str(fileitem.file.name) + ' not in loop </p>' )
+			print('<p>' + fn + ' not in the list </p>' )
 else:
 	print('<p> No Files uploaded </p>')
 
@@ -172,73 +188,102 @@ print(compare_unique_command + "</br></br>")
 # ok, first lets break down the multisample vcf file to individual samples
 
 def filter_multisample(namearray):
-    array=[]
-    for name in namearray:
-        if name.startswith("multiplesamples_"):
-            array.append(name)
-    return array
+	array=[]
+	for name in namearray:
+		if name.startswith("multiplesamples_"):
+			array.append(name)
+	return array
 
 def add_extension(data):
-    text=[]
-    for x in data:
-        text.append(x + ".vcf.gz")
+	text=[]
+	for x in data:
+		text.append(x + ".vcf.gz")
 
-    return text
+	return text
 
 def read_vcf_get_header(vcf):
-    handle = open(vcf)
-    for line in handle:
-        if line.startswith("#CHROM"):
-            break
-    handle.close()
-    return line
+	handle = open(vcf)
+	for line in handle:
+		if line.startswith("#CHROM"):
+			break
+	handle.close()
+	return line
 
 def get_number_of_samples_from_vcf(vcf):
-    handle=open(vcf)
-    for line in handle:
-        if line.startswith("#CHROM"):
-            break
-    handle.close()
-    return line.strip().split("\t")[9:]
+	handle=open(vcf)
+	for line in handle:
+		if line.startswith("#CHROM"):
+			break
+	handle.close()
+	return line.strip().split("\t")[9:]
 
-out=open("output.log", 'w')
+#out=open("output.log", 'w')
 multiplesamples_keys=filter_multisample(form.keys())
-out.write(" ".join(multiplesamples_keys) + "\n")
+#out.write(" ".join(multiplesamples_keys) + "\n")
 for filename in input_vcfs:
-    samples=get_number_of_samples_from_vcf(filename)
-    if len(samples) > 1:   # header has 9 columns + n number of samples
-        # this is multiple sample vcf
-        multisampleid="multiplesamples_" + "_".join(samples)
-        question = "name_question_" + "_".join(samples)
-        selected_samples = form.getvalue(multisampleid)
-        out.write(multisampleid + "\n" + question  + "\n")
+	filename = dir_upload + filename
+	samples=get_number_of_samples_from_vcf(filename)
+	if len(samples) > 1:   # header has 9 columns + n number of samples
+		# this is multiple sample vcf
 
-        if question in form.keys() and form.getvalue(question) == 'on':
-            #separate the samples and merge the samples
-            for sample in selected_samples:
-                out.write("processing sample " + str(sample) + "\n")
-                print("<p>Process sample " + sample + "</p>")
-                print("<p>Splitting out sample " + sample + "</p>")
-                cmd="perl -I ./lib ./vcftoolScripts/vcf-subset --columns " + sample + " " + filename + " > " + sample + ".vcf"
-                out.write(cmd + "\n")
-                os.system(cmd)
-                print("<p></p>")
-                cmd="./otherscripts/bgzip " + sample + ".vcf; ./otherscripts/tabix -f " + sample + ".vcf.gz"
-                out.write(cmd + "\n")
-                os.system(cmd)
 
-        out.write("Now merging them\n")
-        print("<p>Now merging the above processed samples</p>")
-        cmd = "perl -I ./lib ./vcftoolScripts/vcf-merge " + " ".join(add_extension(selected_samples)) + " > " + "_".join(selected_samples) + ".vcf"
-        out.write(cmd + "\n")
-        os.system(cmd)
-    else:
-        # only one sample
-        out.write("only one sample here\n")
-        print("<p>Processing sample " + sample[0] + "</p>")
-        cmd="./otherscripts/bgzip " + samples[0] + ".vcf; ./otherscripts/tabix " + samples[0] + ".vcf.gz"
-        out.write(cmd + "\n")
-        os.system(cmd)
+		multisampleid="multiplesamples_" + "_".join(samples)
+		print("<p>multiplesampleid - " + multisampleid + "</p>")
+		selected_samples = form.getvalue(multisampleid)
+		question = "name_question_" + "_".join(samples)
+		print("name_question - " + question  + "</p>")
+
+		samples_to_merge=[]
+		samples_to_delete=[]
+		if form.getvalue(multisampleid):
+			if isinstance(selected_samples, list) and len(selected_samples) >1:
+				print("<p>Selected sample - " + " ".join(selected_samples) + "</p>")
+				for sample in selected_samples:
+
+					print("<p>Splitting sample - " + sample + "</p>")
+					cmd="perl -I " + rootdir + "lib " + rootdir + "vcftoolScripts/vcf-subset --columns " + sample + " " + filename + " > " + dir_process + sample + ".vcf"
+					#out.write(cmd + "\n")
+					os.system(cmd)
+					cmd=rootdir + "otherscripts/bgzip " + dir_process + sample + ".vcf; " + rootdir + "otherscripts/tabix -f " + dir_process + sample + ".vcf.gz"
+					#out.write(cmd + "\n")
+					print("<p>" + cmd + "</p>")
+					os.system(cmd)
+					samples_to_merge.append(dir_process + sample)
+					samples_to_delete.append(dir_process + sample + ".vcf*")
+
+				if form.getvalue(question):
+					# user has checked to merge the selected samples as one
+					print("<p>Question - " + question  + " On/off - " + form.getvalue(question) + "</p>")
+					print("<p>Now merging the above processed samples - " + ",".join(selected_samples) + "</p>")
+					cmd = "perl -I " + rootdir + "lib " + rootdir + "vcftoolScripts/vcf-merge -d " + " ".join(add_extension(samples_to_merge)) + " > " + dir_process + "_".join(selected_samples) + ".vcf; " + rootdir + "otherscripts/bgzip " + dir_process + "_".join(selected_samples) + ".vcf;" + rootdir + "otherscripts/tabix " + dir_process + "_".join(selected_samples) + ".vcf.gz;"
+					#also remove the samples after merging
+					cmd+=" cd " + dir_process + "; rm " + " ".join(samples_to_delete)
+					print("<p>" + cmd + "</p>")
+					os.system(cmd)
+
+				else:
+					pass
+
+			else:
+				# one one sample selected
+				print("<p>One sample selected from the multisampled file</p>")
+				print("<p>Splitting out sample - " + selected_samples + "</p>")
+				cmd="perl -I " + rootdir + "lib " + rootdir + "vcftoolScripts/vcf-subset --columns " + selected_samples + " " + filename + " > " + dir_process + selected_samples + ".vcf"
+				os.system(cmd)
+				print("</br>")
+				print("<p>Processing sample - " + selected_samples + "</p>")
+				cmd=rootdir + "otherscripts/bgzip " + dir_process + selected_samples + ".vcf; " + rootdir + "otherscripts/tabix -f " + dir_process + selected_samples + ".vcf.gz"
+				os.system(cmd)
+
+		#out.write(multisampleid + "\n" + question  + "\n")
+	else:
+		#only one sample
+		#out.write("only one sample here\n")
+		print("<p>Processing sample - " + samples[0] + "</p>")
+		cmd=rootdir + "otherscripts/bgzip " + dir_upload + samples[0] + ".vcf; mv " + dir_upload + samples[0] + ".vcf.gz " + dir_process + "; " + rootdir + "otherscripts/tabix " + dir_process + samples[0] + ".vcf.gz"
+		#out.write(cmd + "\n")
+		print("<p>" + cmd + "</p>")
+		os.system(cmd)
 
 print("</body>")
 print("</html>")
