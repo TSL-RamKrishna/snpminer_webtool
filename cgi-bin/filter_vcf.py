@@ -27,6 +27,7 @@ parser.add_argument("--rdf", dest="ref_forward_strand", action="store", help="Fi
 parser.add_argument("--rdr", dest="ref_reverse_strand", action="store", help="Filter using depth of reference support reverse strand")
 parser.add_argument("--adf", dest="variant_forward_strand", action="store", help="Filter using depth of variant support forward strand")
 parser.add_argument("--adr", dest="variant_reverse_strand", action="store", help="Filter using depth of variant support reverse strand")
+parser.add_argument("--more-filter", dest="more-filter", action="store", default=None, help="More filter options")
 
 
 class filterVCF():
@@ -35,14 +36,20 @@ class filterVCF():
 	'''
 
 	def __init__(self, vcf):
-		self.vcf = vcf
-		self.vcf_reader = open(self.vcf, 'r')
-		self.template_reader = vcf.Reader(filename=self.vcf)
-		self.vcf_writer =vcf.Writer(open('filter/'+ self.vcf, 'w'), self.template_reader)
+		self.vcf_reader = open(vcf, 'r')
+
+	def read_vcf(self):
+		self.vcfline=self.vcf_reader.readline()
+		return self.vcfline
 
 
 	def filter_by_genotype(self):
-		asdf
+		line=self.read_vcf()
+		if options.genotype in line:
+			return True
+		else:
+			return False
+
 	def filter_by_frequency(self):
 		asdf
 	def filter_by_allele_depth(self):
@@ -71,7 +78,7 @@ class filterVCF():
 		asdf
 	def filter_by_variant_reverse_strand(self):
 		asdf
-		
+
 
 
 def filtersnps_by_position(positions, reflength):
