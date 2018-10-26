@@ -10,10 +10,6 @@ rootdir = os.path.dirname(sys.argv[0]) + "/../"
 dir_upload=rootdir + "uploads/"
 dir_process=rootdir + "process/"
 log_dir=rootdir + "log"
-if not os.path.exists(dir_upload):
-	os.makedirs(dir_upload)
-if not os.path.exists(dir_process):
-	os.makedirs(dir_process)
 
 cgitb.enable(logdir=log_dir)
 # Create instance of FieldStorage
@@ -24,7 +20,7 @@ form = cgi.FieldStorage()
 resistant_sample_vcfs = form.getvalue('resistant_sample_vcfs')
 susceptible_sample_vcfs = form.getvalue('susceptible_sample_vcfs')
 
-reference_sequence = form.getvalue('reference_sequence')
+reference_sequence = form['reference_sequence'].filename
 #input_vcfs = form.getvalue("input_vcfs")
 filtersnps = form.getvalue("filter-snps")
 compare_common = form.getvalue("compare-common")
@@ -49,6 +45,13 @@ depth_ref_support_reverse_strand = form.getvalue('depth_ref_support_reverse_stra
 depth_variant_support_forward_strand = form.getvalue('depth_variant_support_forward_strand')
 depth_variant_support_reverse_strand = form.getvalue('depth_variant_support_reverse_strand')
 
+if not os.path.exists(dir_upload):
+	os.makedirs(dir_upload)
+if not os.path.exists(dir_process):
+	os.makedirs(dir_process)
+
+# Clear up the uploads and process folder
+os.system("rm " + dir_upload + "* " + dir_process + "*")
 
 #print(comparesnps, compare)
 filter_pythonscript="filter_compare_vcf.py"
@@ -71,13 +74,25 @@ for key in form.keys():
 print("<h2>Data provided are below</h2>")
 
 print("You have input following files:  </br>  </br>")
-variable = ""
-value = ""
-r = ""
 
 
+def upload(fileitem):
+	filename=os.path.basename(fileitem.filename)
+	with open(dir_upload + filename, 'wb') as fout:
+		while True:
+			chunk = fileitem.file.read(10000)
+			if not chunk:
+				break
+			fout.write(chunk)
 
-reference_sequence = form['reference_sequence'].filename
+	return True
+
+
+# upload reference
+
+if upload(form['reference_sequence']) == True:
+	print('<p>Reference upload successful </p>')
+
 input_vcfs=[]
 if 'input_vcfs' in form:
 	filefield=form['input_vcfs']
@@ -89,18 +104,13 @@ if 'input_vcfs' in form:
 
 	for fileitem in filefield:
 		if fileitem.filename:
-			fn=os.path.basename(fileitem.filename)
-			input_vcfs.append(fn)
-			try:
-				with open(dir_upload + fn, 'wb') as fout:
-					while True:
-						chunk = fileitem.file.read(10000)
-						if not chunk:
-							break
-						fout.write(chunk)
+			fn = os.path.basename(fileitem.filename)
+			if upload(fileitem) == True:
+				# upload successful
+				input_vcfs.append(fn)
 				print('<p>' + fn + " uploaded </p>")
 
-			except:
+			else:
 				print('<p>' + fn + " upload failed </p>")
 
 		else:

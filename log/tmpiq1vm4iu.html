@@ -1,0 +1,54 @@
+<body bgcolor="#f0f0f8">
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#6622aa">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>KeyError</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial">Python 3.6.5: /usr/bin/python3<br>Mon Sep 24 15:27:24 2018</font></td></tr></table>
+    
+<p>A problem occurred in a Python script.  Here is the sequence of
+function calls leading up to the error, in the order they occurred.</p>
+<table width="100%" cellspacing=0 cellpadding=0 border=0>
+<tr><td bgcolor="#d8bbff"><big>&nbsp;</big><a href="file:///home/shrestha/Sites/cgi-bin/snpminer.py">/home/shrestha/Sites/cgi-bin/snpminer.py</a> in <strong><module></strong>()</td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;&nbsp;78</small>&nbsp;<br>
+</tt></font></td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;&nbsp;79</small>&nbsp;<br>
+</tt></font></td></tr>
+<tr><td bgcolor="#ffccee"><tt>=&gt;<small>&nbsp;&nbsp;&nbsp;80</small>&nbsp;reference_sequence&nbsp;=&nbsp;form['reference_sequence'].filename<br>
+</tt></td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;&nbsp;81</small>&nbsp;input_vcfs=[]<br>
+</tt></font></td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;&nbsp;82</small>&nbsp;if&nbsp;'input_vcfs'&nbsp;in&nbsp;form:<br>
+</tt></font></td></tr>
+<tr><td><small><font color="#909090"><strong>reference_sequence</strong>&nbsp;= None, <strong>form</strong>&nbsp;= FieldStorage(None, None, []), ].<strong>filename</strong>&nbsp;= None</font></small></td></tr></table>
+<table width="100%" cellspacing=0 cellpadding=0 border=0>
+<tr><td bgcolor="#d8bbff"><big>&nbsp;</big><a href="file:///usr/lib/python3.6/cgi.py">/usr/lib/python3.6/cgi.py</a> in <strong>__getitem__</strong>(self=FieldStorage(None, None, []), key='reference_sequence')</td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;602</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;item.name&nbsp;==&nbsp;key:&nbsp;found.append(item)<br>
+</tt></font></td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;603</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;not&nbsp;found:<br>
+</tt></font></td></tr>
+<tr><td bgcolor="#ffccee"><tt>=&gt;<small>&nbsp;&nbsp;604</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;raise&nbsp;KeyError(key)<br>
+</tt></td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;605</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;len(found)&nbsp;==&nbsp;1:<br>
+</tt></font></td></tr>
+<tr><td><font color="#909090"><tt>&nbsp;&nbsp;<small>&nbsp;&nbsp;606</small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;found[0]<br>
+</tt></font></td></tr>
+<tr><td><small><font color="#909090"><em>builtin</em> <strong>KeyError</strong>&nbsp;= &lt;class 'KeyError'&gt;, <strong>key</strong>&nbsp;= 'reference_sequence'</font></small></td></tr></table><p><strong>KeyError</strong>: 'reference_sequence'
+<br><tt><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</small>&nbsp;</tt>args&nbsp;=
+('reference_sequence',)
+<br><tt><small>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</small>&nbsp;</tt>with_traceback&nbsp;=
+&lt;built-in method with_traceback of KeyError object&gt;
+
+
+<!-- The above is a description of an error in a Python program, formatted
+     for a Web browser because the 'cgitb' module was enabled.  In case you
+     are not reading this in a Web browser, here is the original traceback:
+
+Traceback (most recent call last):
+  File "cgi-bin/snpminer.py", line 80, in &lt;module&gt;
+    reference_sequence = form['reference_sequence'].filename
+  File "/usr/lib/python3.6/cgi.py", line 604, in __getitem__
+    raise KeyError(key)
+KeyError: 'reference_sequence'
+
+-->

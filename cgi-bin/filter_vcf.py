@@ -1,5 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys, re
+import argparse
+import vcf
 #############################
 ### program to filter VCF snps with following filter criteria
 ### 1) snp position should not have another snp 200 bp forward or backward
@@ -7,8 +9,70 @@ import sys, re
 #############################
 ### usage : python scriptname refseq.lengths vcf.filename outputfilename
 
-min_distance_between_snps = 200
-min_dp_threshold=100
+
+parser=argparse.ArgumentParser(description="Filter vcf", version="0.01")
+parser.add_argument("-i", "--input", dest="input", action="store", help="VCF input file")
+parser.add_argument("--gt", dest="genotype", action="store", default="Heterozygous", help="Genotype of the SNP")
+parser.add_argument("--freq", dest="frequency", action="store", help="frequency of the SNP")
+parser.add_argument("--adp", dest="adp", action="store", help="allele depth")
+parser.add_argument("--gp", dest="genotype_quality", action="store", help="Genotype quality value to filter SNPs")
+parser.add_argument("--sdp", dest="raw_read_depth", action="store", help="Filter SNPs with Raw Read Depth value")
+parser.add_argument("--dp", dest="quality_read_depth", action="store", help="Filter SNPs with quality read depth")
+parser.add_argument("--rd", dest="ref_support_read_depth", action="store", help="Filter SNPs with reference support read depth")
+parser.add_argument("--ad", dest="variant_support_read_depth", action="store", help="Filter SNPs with variant support read depth")
+parser.add_argument("--pvalue", dest="pvalue", action="store", help="Filter using Pvalue of the SNPs")
+parser.add_argument("--rbq", dest="reference_support_bases", action="store", help="Filter using number of reference support bases")
+parser.add_argument("--abq", dest="quality_variant_bases", action="store", help="Filter using average of quality variant support bases")
+parser.add_argument("--rdf", dest="ref_forward_strand", action="store", help="Filter using depth of reference support forward strand")
+parser.add_argument("--rdr", dest="ref_reverse_strand", action="store", help="Filter using depth of reference support reverse strand")
+parser.add_argument("--adf", dest="variant_forward_strand", action="store", help="Filter using depth of variant support forward strand")
+parser.add_argument("--adr", dest="variant_reverse_strand", action="store", help="Filter using depth of variant support reverse strand")
+
+
+class filterVCF():
+	'''
+	A class for filtering SNPs in VCF files
+	'''
+
+	def __init__(self, vcf):
+		self.vcf = vcf
+		self.vcf_reader = open(self.vcf, 'r')
+		self.template_reader = vcf.Reader(filename=self.vcf)
+		self.vcf_writer =vcf.Writer(open('filter/'+ self.vcf, 'w'), self.template_reader)
+
+
+	def filter_by_genotype(self):
+		asdf
+	def filter_by_frequency(self):
+		asdf
+	def filter_by_allele_depth(self):
+		asdf
+	def filter_by_genotype_quality(self):
+		asdf
+	def filter_by_raw_read_depth(self):
+		asdf
+	def filter_by_quality_read_depth(self):
+		asdf
+	def filter_by_ref_support_read_dpeth(self):
+		asdf
+	def filter_by_variant_support_read_dpeth(self):
+		asdf
+	def filter_by_pvalue(self):
+		asdf
+	def filter_by_reference_support_bases(self):
+		asdf
+	def filter_vy_quality_variant_bases(self):
+		asdf
+	def filter_by_ref_forward_strand(self):
+		asdf
+	def filter_by_ref_reverse_strand(self):
+		asdf
+	def filter_vy_variant_forward_strand(self):
+		asdf
+	def filter_by_variant_reverse_strand(self):
+		asdf
+		
+
 
 def filtersnps_by_position(positions, reflength):
 
