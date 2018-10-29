@@ -4,7 +4,7 @@
 import os, sys
 import unittest
 rootPath=os.path.dirname(os.path.abspath(sys.argv[0])) + "/.."
-cgiPath=rootPath + "/cgi"
+cgiPath=rootPath + "/cgi-bin"
 sys.path.append(cgiPath)
 
 from verify_vcf import verify_vcf as vv
