@@ -29,7 +29,7 @@ parser.add_argument("--adf", dest="variant_forward_strand", action="store", help
 parser.add_argument("--adr", dest="variant_reverse_strand", action="store", help="Filter using depth of variant support reverse strand")
 parser.add_argument("--more-filter", dest="more-filter", action="store", default=None, help="More filter options")
 
-
+options=parser.parse_args()
 class filterVCF():
 	'''
 	A class for filtering SNPs in VCF files
@@ -40,141 +40,196 @@ class filterVCF():
 
 	def read_vcf(self):
 		self.vcfline=self.vcf_reader.readline()
-		return self.vcfline
+	def close_vcf(self):
+		self.vcf_reader.close()
+	def get_format(self, line):
+		return line.split("\t")[8]
+	def get_info(self, line):
+		return line.split("\t")[7]
+	def get_format_key_position(self, vcfline, idname):
 
+		format = self.get_format(vcfline)
+		counter=0
+		for key in format.split(":"):
+			if key ==idname.upper():
+				return counter
+			else:
+				counter+=1
+		return "unknown format ID"
 
-	def filter_by_genotype(self):
-		line=self.read_vcf()
-		if options.genotype in line:
-			return True
+	def get_sample_value_for_format_key(self, vcfline, counter):
+		sampledata = vcfline.split('\t')[9]
+		return sampledata.split(":")[counter]
+
+	def filter_by_genotype(self, vcfline):
+
+		position = self.get_format_key_position(vcfline, 'GT')
+		genotype = self.get_sample_value_for_format_key(vcfline, position)
+		alleles = genotype.split("/")
+		if len(alleles) == 2:
+			if alleles[0] == alleles[1]:
+				return 'Homozygous'
+			else:
+				return 'Heterozygous'
+		elif len(alleles) == 3:
+			if alleles[0] == alleles[1] == alleles[2]:
+				return 'Homozygous'
+			else:
+				return 'Heterozygous'
 		else:
-			return False
-
-	def filter_by_frequency(self):
-		asdf
-	def filter_by_allele_depth(self):
-		asdf
-	def filter_by_genotype_quality(self):
-		asdf
-	def filter_by_raw_read_depth(self):
-		asdf
-	def filter_by_quality_read_depth(self):
-		asdf
-	def filter_by_ref_support_read_dpeth(self):
-		asdf
-	def filter_by_variant_support_read_dpeth(self):
-		asdf
-	def filter_by_pvalue(self):
-		asdf
-	def filter_by_reference_support_bases(self):
-		asdf
-	def filter_vy_quality_variant_bases(self):
-		asdf
-	def filter_by_ref_forward_strand(self):
-		asdf
-	def filter_by_ref_reverse_strand(self):
-		asdf
-	def filter_vy_variant_forward_strand(self):
-		asdf
-	def filter_by_variant_reverse_strand(self):
-		asdf
+			pass
 
 
+	def filter_by_frequency(self, vcfline, threshold):
+		position = self.get_format_key_position(vcfline,'FREQ')
+		frequency = self.get_sample_value_for_format_key(vcfline, position).replace('%', '')
+		return int(frequency)
 
-def filtersnps_by_position(positions, reflength):
+	def filter_by_allele_depth(self,vcfline, threshold):
+		'filter by allele depth'
+		position = self.get_format_key_position(vcfline,'ADP')
+		alleleDepth = self.get_sample_value_for_format_key(vcfline, position)
+		return int(alleleDepth)
 
-    # min array size should be 3.
-    selected_positions = []
-    positions=sorted(map(lambda x:int(x), positions)) # incase there are string numbers
-    if len(positions) ==1:
-        if positions[0] >= min_distance_between_snps and reflength - min_distance_between_snps >= positions[0]:
-            selected_positions.append(positions[0])
-    elif len(positions) == 2:
-        if positions[1] - positions[0] > 200:
-            if positions[0] >= min_distance_between_snps:
-                selected_positions.append(positions[0])
-            if reflength - min_distance_between_snps >= positions[1]:
-                selected_positions.append(positions[1])
-    elif len(positions) >=3:
+	def filter_by_genotype_quality(self,vcfline, threshold):
+		'filter by Genotype Quality'
+		position = self.get_format_key_position(vcfline,'GQ')
+		genotypeQuality = self.get_sample_value_for_format_key(vcfline, position)
+		return int(genotypeQuality)
 
-        #if positions[0] > min_distance_between_snps and positions[1] - positions[0] >= min_distance_between_snps:
-        if positions[1] - positions[0] >= min_distance_between_snps:
-            selected_positions.append(positions[0])
+	def filter_by_raw_read_depth(self,vcfline, threshold):
+		'filter by Raw Read Depth as reported by used software tool e.g. SAMtools'
+		position = self.get_format_key_position(vcfline,'SDP')
+		rawReadDepth = self.get_sample_value_for_format_key(vcfline, position)
+		return int(rawReadDepth)
 
-        for pos in range(1, len(positions)-1):
-            if positions[pos] - positions[pos-1] > min_distance_between_snps and positions[pos+1] - positions[pos] > min_distance_between_snps:
-                selected_positions.append(positions[pos])
+	def filter_by_quality_read_depth(self,vcfline, threshold):
+		'filter by Quality Read Depth of bases with Phred score >= 15'
+		position = self.get_format_key_position(vcfline,'DP')
+		qualityReadDepth = self.get_sample_value_for_format_key(vcfline, position)
+		return int(qualityReadDepth)
 
-        #if reflength - min_distance_between_snps > positions[-1] and positions[-1] - positions[-2] > min_distance_between_snps:
-        if positions[-1] - positions[-2] > min_distance_between_snps:
-            selected_positions.append(positions[-1])
+	def filter_by_ref_support_read_depth(self,vcfline, threshold):
+		'filter by the sample Depth of reference-supporting bases (reads1)'
+		position = self.get_format_key_position(vcfline,'RD')
+		refSupportReadDepth = self.get_sample_value_for_format_key(vcfline, position)
+		return int(refSupportReadDepth)
 
-    return selected_positions
+	def filter_by_variant_support_read_depth(self,vcfline, threshold):
+		'filter by the sample Depth of variant-supporting bases (reads2)'
+		position = self.get_format_key_position(vcfline,'AD')
+		varSupportReadDepth = self.get_sample_value_for_format_key(vcfline, position)
+		return int(varSupportReadDepth)
+	def filter_by_pvalue(self,vcfline, threshold):
+		'filter by P-value from Fisher\'s Exact Test'
+		position = self.get_format_key_position(vcfline,'PVAL')
+		pvalue = self.get_sample_value_for_format_key(vcfline, position)
+		return float(pvalue)
 
-def get_highest_dp(vcfline):
-    dparray=re.findall('DP\d*=\d{1,10}', vcfline)
-    highest_dp=sorted(map(lambda x: int(x.split("=")[1]), dparray), reverse=True)[0]
-    return highest_dp
+	def filter_by_reference_support_bases(self, vcfline, threshold):
+		'filter by Average quality of reference-supporting bases (qual1)'
+		position = self.get_format_key_position(vcfline, 'RBQ')
+		refSupportBases = self.get_sample_value_for_format_key(vcfline, position)
+		return int(refSupportBases)
 
+	def filter_by_quality_variant_bases(self, vcfline, threshold):
+		'filter by Average quality of variant-supporting bases (qual2)'
+		position = self.get_format_key_position(vcfline,'ABQ')
+		variantSupportBases = self.get_sample_value_for_format_key(vcfline, position)
+		return int(variantSupportBases)
 
-def main(ref_lengths, vcf_file, filtered_vcf_file):
+	def filter_by_ref_forward_strand(self,vcfline, threshold):
+		'filter by sample Depth of reference-supporting bases on forward strand (reads1plus)'
+		position = self.get_format_key_position(vcfline,'RDF')
+		refForwardStrand = self.get_sample_value_for_format_key(vcfline, position)
+		return int(refForwardStrand)
 
-    readlengthfh=open(ref_lengths)      # File with reference sequences and their lengths
-    readlengths=dict()
-    for line in readlengthfh:
-        line=line.rstrip()
-        if line=="":
-            continue
-        else:
-            linearray=line.split()
-            readlengths[linearray[0]] = int(linearray[1])
+	def filter_by_ref_reverse_strand(self, vcfline, threshold):
+		'filter by sample Depth of reference-supporting bases on reverse strand (reads1minus)'
+		position = self.get_format_key_position(vcfline,'RDR')
+		refReverseStrand = self.get_sample_value_for_format_key(vcfline, position)
+		return int(refReverseStrand)
 
-    readlengthfh.close()
+	def filter_by_variant_forward_strand(self, vcfline, threshold):
+		'filter the sample by Depth of variant-supporting bases on forward strand (reads2plus)'
+		position = self.get_format_key_position(vcfline,'ADF')
+		variantForwardStrand = self.get_sample_value_for_format_key(vcfline, position)
+		return int(variantForwardStrand)
 
-    vcfhandle=open(vcf_file)     #VCF file after comparing Sparent and Sbulk with Rparent
+	def filter_by_variant_reverse_strand(self, vcfline, threshold):
+		'filter the sample by Depth of variant-supporting bases on reverse strand (reads2minus)'
+		position = self.get_format_key_position(vcfline,'ADR')
+		variantReverseStrand = self.get_sample_value_for_format_key(vcfline, position)
+		return int(variantReverseStrand)
 
-    filtersnps=dict()
-    for line in vcfhandle:
-        line=line.rstrip()
-        if line=="":
-            continue
-        else:
-            reference = line.split()[0]
-            position = int(line.split()[1])
-            if reference in filtersnps.keys():
-                filtersnps[reference]["positions"].append(position)
-            else:
-                filtersnps[reference]={"positions":[position]}
+	def filter(self):
+		'filter vcf'
 
-    vcfhandle.close()
-
-    # lets select positions with snps that has no snps around 200 positions
-
-    for refseqkey in filtersnps.keys():
-        #print filtersnps[refseqkey]["positions"]
-        #print readlengths[refseqkey]
-        selected_positions = filtersnps_by_position(filtersnps[refseqkey]["positions"], readlengths[refseqkey])
-        filtersnps[refseqkey]["selected_positions"]=selected_positions
-
-    # now we have selected the positions, lets get the snps from vcf file if read depth is above minimum threshold
-    vcfhandle=open(vcf_file)
-    output = open(filtered_vcf_file, "w")
-    for vcfline in vcfhandle:
-        vcfline=vcfline.rstrip()
-        if line=="":
-            continue
-        else:
-            reference = vcfline.split()[0]
-            position = int(vcfline.split()[1])
-            if get_highest_dp(vcfline) >=min_dp_threshold:
-                if position in filtersnps[reference]["selected_positions"]:
-                    output.write(vcfline + "\n")
-            else:
-                continue
-
-    vcfhandle.close()
-    output.close()
+		while True:
+			self.read_vcf()
+			if not self.vcfline:
+				break
+			elif self.vcfline.startswith("#"):
+				continue
+			else:
+				if filter_by_genotype(self.vcfline) == options.genotype:
+					pass
+				else:
+					continue
+				if filter_by_genotype_quality(self.vcfline) >= options.genotype_quality:
+					pass
+				else:
+					continue
+				if filter_by_raw_read_depth(self.vcfline) >= options.raw_read_depth:
+					pass
+				else:
+					continue
+				if filter_by_quality_read_depth(self.vcfline) >= options.quality_read_depth:
+					pass
+				else:
+					continue
+				if filter_by_ref_support_read_depth(self.vcfline) >= options.ref_support_read_depth:
+					pass
+				else:
+					continue
+				if filter_by_variant_support_read_depth(self.vcfline) >= options.variant_support_read_depth:
+					pass
+				else:
+					continue
+				if filter_by_frequency(self.vcfline) >= options.frequency:
+					pass
+				else:
+					continue
+				if filter_by_pvalue(self.vcfline) <= options.pvalue :
+					pass
+				else:
+					continue
+				if filter_by_reference_support_bases(self.vcfline) >= options.reference_support_bases:
+					pass
+				else:
+					continue
+				if filter_by_variant_support_read_depth(self.vcfline) >= options.variant_support_read_depth:
+					pass
+				else:
+					continue
+				if filter_by_ref_forward_strand(self.vcfline) >= options.ref_forward_strand:
+					pass
+				else:
+					continue
+				if filter_by_ref_reverse_strand(self.vcfline) >= options.ref_reverse_strand:
+					pass
+				else:
+					continue
+				if filter_by_variant_forward_strand(self.vcfline) >= options.variant_forward_strand:
+					pass
+				else:
+					continue
+				if filter_by_variant_reverse_strand(self.vcfline) >= options.variant_reverse_strand:
+					pass
+				else:
+					continue
+			print(self.vcfline)
 
 if __name__ ==  "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
-exit(0)
+	filtering = filterVCF(options.input)
+	filtering.filter()
