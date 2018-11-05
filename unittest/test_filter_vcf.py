@@ -20,42 +20,42 @@ class Test_filter_vcf(unittest.TestCase):
 
 	def test_filter_by_frequency(self):
 		result=self.vcfobj.filter_by_frequency(self.vcfline, 75)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,75)
 	def test_filter_by_genotype_quality(self):
 		result = self.vcfobj.filter_by_genotype_quality(self.vcfline, 24)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,24)
 	def test_filter_by_raw_read_depth(self):
 		result=self.vcfobj.filter_by_raw_read_depth(self.vcfline, 8)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,8)
 	def test_filter_by_quality_read_depth(self):
 		result=self.vcfobj.filter_by_quality_read_depth(self.vcfline, 8)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result, 8)
 	def test_filter_by_ref_support_read_depth(self):
 		result=self.vcfobj.filter_by_ref_support_read_depth(self.vcfline, 2)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result, 2)
 	def test_filter_by_variant_support_read_depth(self):
 		result=self.vcfobj.filter_by_variant_support_read_depth(self.vcfline, 6)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result, 6)
 	def test_filter_by_pvalue(self):
 		result=self.vcfobj.filter_by_pvalue(self.vcfline, 3.4965E-3)
-		self.assertTrue(result)
+		self.assertLessEqual(result, 3.4965E-3)
 	def test_filter_by_reference_support_bases(self):
 		result=self.vcfobj.filter_by_reference_support_bases(self.vcfline, 31)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,31)
 	def test_filter_by_quality_variant_bases(self):
 		result=self.vcfobj.filter_by_quality_variant_bases(self.vcfline, 30)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,30)
 	def test_filter_by_ref_forward_strand(self):
 		result=self.vcfobj.filter_by_ref_forward_strand(self.vcfline, 2)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,2)
 	def test_filter_by_ref_reverse_strand(self):
 		result=self.vcfobj.filter_by_ref_reverse_strand(self.vcfline, 0)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result, 0)
 	def test_filter_by_variant_forward_strand(self):
 		result=self.vcfobj.filter_by_variant_forward_strand(self.vcfline, 6)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result, 6)
 	def test_filter_by_variant_reverse_strand(self):
 		result=self.vcfobj.filter_by_variant_reverse_strand(self.vcfline, 0)
-		self.assertTrue(result)
+		self.assertGreaterEqual(result,0)
 if __name__ == '__main__':
 	unittest.main()
