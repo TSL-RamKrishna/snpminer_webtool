@@ -32,7 +32,7 @@ class test_filter(unittest.TestCase):
 	def test_get_pvalue(self):
 		self.test_get_a_record(); self.test_get_samplename()
 		pvalue = self.filterobj.get_pvalue(self.record, self.samplename)
-		self.assertLessEqual(pvalue, 0.0034965)
+		self.assertEqual(pvalue, 0.0034965)
 
 	def test_get_frequency(self):
 		self.test_get_a_record(); self.test_get_samplename()

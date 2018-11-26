@@ -84,25 +84,44 @@ class filter():
 	def get_depth_in_variant(self, record, sample):
 		call=record.genotype(sample)
 		return int(call.data.AD)
+	def check_threshold_value(self, recordvalue, testvalue):
+		if recordvalue >= testvalue:
+			return True
+		else:
+			return False
+
+	def check_frequency(self,record, sample, testvalue):
+		return self.check_threshold_value(self.get_frequency(record,sample), testvalue)
+	def check_pvalue(self, record, sample,testvalue):
+		return self.check_threshold_value(self.get_pvalue(record, sample), testvalue)
+	def check_genotype(self,record, sample,testvalue):
+		return self.check_threshold_value(self.get_genotype(record, sample), testvalue)
+	def check_genotype_quality(self,record, sample,testvalue):
+		return self.check_threshold_value(self.get_genotype_quality(record, sample), testvalue)
+	def check_read_quality_depth(self,record, sample,testvalue):
+		return self.check_threshold_value(self.get_read_quality_depth(record, sample), testvalue)
+	def check_raw_read_depth(self,record, sample,testvalue):
+		return self.check_threshold_value(self.get_raw_read_depth(record,sample), testvalue)
+	def check_depth_in_reference(self,record, sample,testvalue):
+		return self.check_threshold_value(self.get_depth_in_reference(record, sample), testvalue)
+	def check_depth_in_variant(self,record, sample,testvalue):
+		return self.check_threshold_value(self.get_depth_in_variant(record, sample), testvalue)
 
 
 	def do_filter(self, genotype, frequency, pvalue, raw_read_depth, quality_read_depth, genotype_quality, depth_in_reference, depth_in_variant):
+
+
+		#test_functions=['check_frequency', 'check_pvalue', 'check_genotype', 'check_genotype_quality', 'check_read_quality_depth', 'check_raw_read_depth', 'check_raw_depth_in_reference', 'check_depth_in_variant']
 
 		samplenames = vcffilter.vcf_reader.samples
 		vcffilter.samples = samplenames
 		for record in vcffilter.vcf_reader:
 			#vcffilter.get_record_calldata(record)
 			for samplename in samplenames:
-				if vcffilter.get_frequency(record, samplename) >= int(frequency):
-					if vcffilter.get_pvalue(record, samplename) <= float(pvalue):
-						if genotype == 'both' or vcffilter.get_genotype(record, samplename) == genotype:
-							if vcffilter.get_read_quality_depth(record, samplename) >= int(quality_read_depth):
-								if vcffilter.get_genotype_quality(record, samplename) >= int(genotype_quality):
-									if vcffilter.get_raw_read_depth(record, samplename) >= int(raw_read_depth):
-										if vcffilter.get_depth_in_reference(record, samplename) >= int(depth_in_reference):
-											if vcffilter.get_depth_in_variant(record, samplename) >= int(depth_in_variant):
-												vcffilter.write_vcf(record)
-
+				#result=[getattr(self, function)(record, samplename) for funciton in test_functions]
+				results=[self.check_genotype(record, samplename, genotype), self.check_pvalue(record, samplename, frequency), self.check_pvalue(record,samplename, pvalue), self.check_raw_read_depth(record,samplename,raw_read_depth), self.check_read_quality_depth(record, samplename, quality_read_depth), self.check_genotype_quality(record,samplename, genotype_quality), self.check_depth_in_reference(record, samplename, depth_in_reference), self.check_depth_in_variant(record, samplename, depth_in_variant)]
+				if all(results):
+					vcffilter.write_vcf(record)
 
 		return
 
