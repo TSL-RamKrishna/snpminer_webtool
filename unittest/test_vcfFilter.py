@@ -15,6 +15,7 @@ class test_filter(unittest.TestCase):
 	filterobj = filter('testfiles/test.vcf')
 	record=filterobj.get_a_record()
 	samplename=filterobj.get_samplename()
+	filterobj.open_vcf_writer('testfiles/testoutput.vcf')
 
 	def test_get_samplename(self):
 		if self.samplename=='':
@@ -90,8 +91,7 @@ class test_filter(unittest.TestCase):
 	def test_check_depth_in_variant(self):
 		self.assertTrue(self.filterobj.check_depth_in_variant(self.record, self.samplename, 6))
 	def test_do_filter(self):
-		self.filterobj.open_vcf_writer('testfiles/testoutput.vcf')
-		self.assertEqual(self.filterobj.do_filter(75,float(3.4965E-3), '1/1', 24, 8, 8, 2, 6), 2)
+		self.assertEqual(self.filterobj.do_filter(self.record, self.samplename, 75,float(3.4965E-3), '1/1', 24, 8, 8, 2, 6), 8)
 
 
 if __name__== '__main__':
