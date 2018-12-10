@@ -282,7 +282,7 @@ for filename in input_vcfs:
 				os.system(cmd)
 				print("</br>")
 				print("<p>Processing sample - " + selected_samples + "</p>")
-				cmd=rootdir + "otherscripts/bgzip " + dir_process + selected_samples + ".vcf; " + rootdir + "otherscripts/tabix -f " + dir_process + selected_samples + ".vcf.gz"
+				cmd=rootdir + "otherscripts/bgzip " + dir_process + selected_samples + ".vcf; " + rootdir + "otherscripts/tabix -f " + dir_process + selected_samples + ".vcf.gz; gunzip " + rootdir + "otherscripts/tabix -f " + dir_process + selected_samples + ".vcf.gz"
 				os.system(cmd)
 
 		#out.write(multisampleid + "\n" + question  + "\n")
@@ -290,7 +290,7 @@ for filename in input_vcfs:
 		#only one sample
 		#out.write("only one sample here\n")
 		print("<p>Processing sample - " + samples[0] + "</p>")
-		cmd=rootdir + "otherscripts/bgzip " + dir_upload + samples[0] + ".vcf; mv " + dir_upload + samples[0] + ".vcf.gz " + dir_process + "; " + rootdir + "otherscripts/tabix " + dir_process + samples[0] + ".vcf.gz"
+		cmd=rootdir + "otherscripts/bgzip " + dir_upload + samples[0] + ".vcf; mv " + dir_upload + samples[0] + ".vcf.gz " + dir_process + "; " + rootdir + "otherscripts/tabix " + dir_process + samples[0] + ".vcf.gz; gunzip " + + rootdir + "otherscripts/tabix -f " + dir_process + selected_samples + ".vcf.gz"
 		#out.write(cmd + "\n")
 		print("<p>" + cmd + "</p>")
 		os.system(cmd)

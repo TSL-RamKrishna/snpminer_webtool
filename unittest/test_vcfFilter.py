@@ -90,8 +90,8 @@ class test_filter(unittest.TestCase):
 		self.assertTrue(self.filterobj.check_depth_in_reference(self.record, self.samplename, 2))
 	def test_check_depth_in_variant(self):
 		self.assertTrue(self.filterobj.check_depth_in_variant(self.record, self.samplename, 6))
-	def test_do_filter(self):
-		self.assertEqual(self.filterobj.do_filter(self.record, self.samplename, 75,float(3.4965E-3), '1/1', 24, 8, 8, 2, 6), 8)
+	def test_passed_filter(self):
+		self.assertTrue(self.filterobj.pased_filter(self.record, self.samplename, 75,float(3.4965E-3), '1/1', 24, 8, 8, 2, 6))
 
 
 if __name__== '__main__':
