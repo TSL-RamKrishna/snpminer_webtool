@@ -9,19 +9,19 @@ import vcf
 ### 2) min depth = 100
 #############################
 ### usage : python scriptname refseq.lengths vcf.filename outputfilename
-parser=argparse.ArgumentParser(description="Filter vcf")
-parser.add_argument("-i", "--input", dest="input", action="store", help="VCF input file")
-parser.add_argument("--gt", dest="genotype", action="store", default="homozygous", help="Genotype of the SNP")
-parser.add_argument("--freq", dest="frequency", action="store", type=int, default= 50, help="frequency of the SNP")
-parser.add_argument("--dp", dest="quality_read_depth", action="store", type=int, default=5, help="Filter SNPs with quality read depth")
-parser.add_argument("--pvalue", dest="pvalue", action="store", type=float, default=0.05, help="Filter SNPs with pvalue of snp call")
-parser.add_argument('--output', '--out', dest='output', action='store', default="vcffilter_output.vcf", help="Output filename")
-parser.add_argument('--gq', dest='genotype_quality', type=int, action='store', default=10, help='Genotype Quality')
-parser.add_argument('--rrd','--sdp', dest='raw_read_depth', type=int, action='store', default=3, help='Raw read depth as reported by Samtools')
-parser.add_argument('--rd', dest='depth_in_reference', type=int, action='store', default=3, help='Raw depth in reference')
-parser.add_argument('--ad', dest='depth_in_variant', type=int, action='store', default=3, help='Raw depth in varaint')
-
-options = parser.parse_args()
+# parser=argparse.ArgumentParser(description="Filter vcf")
+# parser.add_argument("-i", "--input", dest="input", action="store", help="VCF input file")
+# parser.add_argument("--gt", dest="genotype", action="store", default="homozygous", help="Genotype of the SNP")
+# parser.add_argument("--freq", dest="frequency", action="store", type=int, default= 50, help="frequency of the SNP")
+# parser.add_argument("--dp", dest="quality_read_depth", action="store", type=int, default=5, help="Filter SNPs with quality read depth")
+# parser.add_argument("--pvalue", dest="pvalue", action="store", type=float, default=0.05, help="Filter SNPs with pvalue of snp call")
+# parser.add_argument('--output', '--out', dest='output', action='store', default="vcffilter_output.vcf", help="Output filename")
+# parser.add_argument('--gq', dest='genotype_quality', type=int, action='store', default=10, help='Genotype Quality')
+# parser.add_argument('--rrd','--sdp', dest='raw_read_depth', type=int, action='store', default=3, help='Raw read depth as reported by Samtools')
+# parser.add_argument('--rd', dest='depth_in_reference', type=int, action='store', default=3, help='Raw depth in reference')
+# parser.add_argument('--ad', dest='depth_in_variant', type=int, action='store', default=3, help='Raw depth in varaint')
+#
+# options = parser.parse_args()
 
 
 class filter():
@@ -47,9 +47,11 @@ class filter():
 		self.samplenames=self.vcf_records.samples
 	# def open_vcf_writer(self, out):
 	# 	self.vcf_writer=vcf.Writer(open(out, 'w'), self.vcf_reader)
-	# def write_vcf(self, record):
-	# 	self.vcf_writer.write_record(record)
-	# 	self.count_successful_records+=1
+	def write_vcf(self, vcf_output, records):
+		self.vcf_writer=vcf.Writer(open(vcf_output, 'w'), self.vcf_records)
+		for record in records:
+			self.vcf_writer.write_record(record)
+		return
 	def get_a_record(self):
 		self.count_records+=1
 		return self.vcf_reader.next()
@@ -147,8 +149,8 @@ class filter():
 	def get_passed_filter_records(self):
 		records_passed=[]
 		samplename=self.get_samplename()
-		for record in self.vcf_records():
-			if passed_filter(record, samplename) == True:
+		for record in self.vcf_records:
+			if self.passed_filter(record, samplename) == True:
 				records_passed.append(record)
 
 		return records_passed
@@ -166,3 +168,4 @@ if __name__=='__main__':
 	for record in vcffilter.vcf_reader:
 		for samplename in samplenames:
 			if vcffilter.do_filter(record, samplename, options.frequency, options.pvalue, options.genotype, options.genotype_quality, options.raw_read_depth, options.quality_read_depth,  options.depth_in_reference, options.depth_in_variant) == True:
+				print (record)
