@@ -13,20 +13,29 @@ from compare_snps import compareSNPs
 parser=argparse.ArgumentParser(description='Script to filter the SNPs using user threshold values and compare the SNPs from multiple VCF files')
 
 parser.add_argument('--vcf', action='store', dest='vcf', nargs='+', help='Space separated vcf input files')
-parser.add_argument('--filter', action='store_true', dest='filter', help='Filter the SNPs')
-parser.add_argument('--compare', action='store_true', dest='compare', help='Compare the SNPs')
+parser.add_argument('--filter', action='store_true', dest='filter', default=False, help='Filter the SNPs')
+parser.add_argument('--compare', action='store_true', dest='compare', default=False, help='Compare the SNPs')
 
 
 
 options=parser.parse_args()
-
-print (options)
+if not options.vcf:
+	print("Input VCF file/s not provided. Use option --vcf to provde the input VCF files (mutliple vcf files should be space separated)")
+	exit(1)
+if len(options.vcf) ==1 and options.compare == True:
+	print("Number of VCF files provided : ", len(options.vcf))
+	print("SNP compare will not be done.")
+	options.compare=False
 
 
 
 class filter_vcf_records():
+	'''
+	a class to filter the vcf records based on the thresholds provided
+	'''
 
 	def __init__(self, vcf, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=30, raw_read_depth=10, quality_read_depth=10, depth_in_reference=10, depth_in_variant=10):
+		''' Initialize the filter parameters with default values, if not provided'''
 		self.vcf=vcf
 		self.frequency=frequency
 		self.pvalue=pvalue
@@ -37,6 +46,7 @@ class filter_vcf_records():
 		self.depth_in_reference=depth_in_reference
 		self.depth_in_variant=depth_in_variant
 	def filter_records(self):
+		''' Calls the filter class get-get_passed_filter_records function to get the snp records that pass the filter step'''
 		filter = filter.get_passed_filter_records(self.vcf, self.frequency, self.pvalue, self.genotype, self.genotype_quality, self.raw_read_depth, self.quality_read_depth, self.depth_in_reference, self.depth_in_variant)
 
 
@@ -48,39 +58,46 @@ class compare_vcf_records():
 		self.common_records=self.comparing.get_common_records()
 		# you may write common records to file
 	def get_unique_records(self):
-		self.record_db = self.comparing.get_unique_records()
-	def write_unique_records(self):
-		for key in self.record_db.keys():
-			filename=self.record_db[key]["filename"]
+		self.uniq_record_db = self.comparing.get_unique_records()
+	def write_unique_records_snps(self):
+		for key in self.uniq_record_db.keys():
+			print("Key: ", key)
+			filename=self.uniq_record_db[key]["filename"]
 			vcf_reader=vcf.Reader(open(filename, 'r'))
 			vcf_writer=vcf.Writer(open(filename + "uniqueRecords.vcf", 'w'), vcf_reader)
-			for record in self.record_db[key]['uniqueRecords']:
+			for record in self.uniq_record_db[key]['uniqueRecords']:
+				#print("Uniq records: ", len(self.uniq_record_db[key]['uniqueRecords']))
 				vcf_writer.write_record(record)
-	def write_common_records(self):
-		vcf_reader=vcf.Reader(open(self.database[0]['filename'], 'r'))
-		vcf_writer=vcf.Writer(open('testfiles/commonrecords.vcf', 'w'), vcf_reader)
+	def write_common_records_snps(self):
+		out=open('testfiles/common_records.txt', 'w')
 		for record in self.common_records:
-			vcf_writer.write_record(record)
+			out.write(" ".join(map(str,[record.CHROM, record.POS, record.REF, record.ALT, "\n"]) ) )
 
+def read_vcf_records(vcf_filename):
+	return list(vcf.Reader(filename=vcf_filename))
+
+#construct a database of vcf filename and records
 
 vcf_database={}
 counter=1
-for vcf in options.vcf:
-	print (vcf)
-	if options.filter == True:
-		filter_passed_records=filter(vcf)
-		vcf_database["inputfile-" + str(counter)]={'filename':vcf, 'filterPassedRecord':filter_passed_records.get_passed_filter_records(), 'uniqueRecords':[], 'commonrecords':[]}
-		filter_passed_records.write_vcf('testfiles/filter_test_output.vcf', vcf_database["inputfile-" + str(counter)]['filterPassedRecord'])
-		counter+=1
-
-for key in vcf_database:
-	print key, len(vcf_database[key]['filterPassedRecord'])
+for vcfinput in options.vcf:
+	vcf_database["inputfile-" + str(counter)]={'filename':vcfinput, 'records':read_vcf_records(vcfinput)}
+	counter+=1
 
 
-compare = compare_vcf_records(vcf_database)
-compare.get_common_records()
-compare.get_unique_records()
-compare.write_common_records()
-compare.write_unique_records()
-## To compare the SNPs, we need at least two vcf files
-## for vcf files x, y and z, compare snps will output x - y, x - z
+if options.filter == True:
+	for key in vcf_database.keys():
+		filter_passed_records=filter(vcf_database[key]['filename'])
+		vcf_database[key].update({'filterPassedRecord':filter_passed_records.get_passed_filter_records(), 'uniqueRecords':[]})
+
+	for key in vcf_database:
+		print(key, "total records", len(vcf_database[key]['records']), "filtered records", len(vcf_database[key]['filterPassedRecord']))
+
+if options.compare == True:
+	compare = compare_vcf_records(vcf_database)
+	compare.get_common_records()
+	compare.get_unique_records()
+	compare.write_common_records_snps()
+	compare.write_unique_records_snps()
+	## To compare the SNPs, we need at least two vcf files
+	## for vcf files x, y and z, compare snps will output x - y, x - z

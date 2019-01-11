@@ -56,10 +56,10 @@ class compareSNPs():
 		self.vcf2records = self.list_records(vcf.Reader(filename=vcf2))
 
 	def get_common_records(self):
-		keys=self.record_db.keys()
-		common_records=self.record_db[keys[0]]['filterPassedRecord']	# take the records in the first keys as common, then later on delete the records if not found in other indices
+		db_keys=list(self.record_db.keys())
+		common_records=self.record_db[db_keys[0]]['filterPassedRecord']	# take the records in the first keys as common, then later on delete the records if not found in other indices
 		temp_common_records=[]
-		for key in self.record_db.keys()[1:]:
+		for key in db_keys[1:]:
 			for record1 in self.record_db[key]['filterPassedRecord']:
 				for record2 in common_records:
 					if record1.CHROM == record2.CHROM and record1.POS == record2.POS and record1.REF==record2.REF and record1.ALT==record2.ALT:
@@ -72,26 +72,30 @@ class compareSNPs():
 		unique=[]
 		for record1 in recordlist1:
 			for record2 in recordlist2:
+
 				if record1.CHROM == record2.CHROM and record1.POS == record2.POS and record1.ALT == record2.ALT:
 					continue
 				else:
+					
+					print(record1.CHROM, record2.CHROM, record1.POS, record2.POS, record1.ALT, record2.ALT)
 					unique.append(record1)
 
 		return unique
 
 	def get_unique_records(self):
-		db_keys=self.record_db.keys()
-		for key1 in db_keys:
-			unique_records=self.record_db[key1]['filterPassedRecord']
+		db_keys=list(self.record_db.keys())
+		print (db_keys)
+		num_of_dbkeys=len(db_keys)
+		for key1 in range(num_of_dbkeys-1):
+			firstKey=db_keys[key1]
+			unique_records=self.record_db[firstKey]['filterPassedRecord']
+			for key2 in range(key1+1, num_of_dbkeys):
+				secondKey=db_keys[key2]
+				unique_records = self.compare_for_uniq_records(unique_records, self.record_db[secondKey]['filterPassedRecord'])   #this will give uniq records in key1
 
-			for key2 in db_keys:
-				if key1 == key2:
-					continue
-				else:
-					unique_records= self.compare_for_uniq_records(unique_records, self.record_db[key2]['filterPassedRecord'])   #this will give uniq records in key1
 
-			self.record_db[key1]['uniqueRecords']=unique_records
-
+				self.record_db[firstKey]['uniqueRecords']=unique_records
+		print(self.record_db)
 		return self.record_db
 
 
