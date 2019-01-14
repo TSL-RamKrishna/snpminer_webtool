@@ -46,7 +46,6 @@ for vcffilename in vcffilenames:
 		else:
 
 			if snpStart == True:
-				print(line)
 				linearray=line.split("\t")
 				chromosome=linearray[0]
 				position=linearray[1]
@@ -69,28 +68,21 @@ class filter_vcf_records():
 	a class to filter the vcf records based on the thresholds provided
 	'''
 
-	def __init__(self, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=30, raw_read_depth=10, quality_read_depth=10, depth_in_reference=10, depth_in_variant=10):
+	def __init__(self, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=10, raw_read_depth=1, quality_read_depth=1, depth_in_reference=1, depth_in_variant=1):
 		''' Initialize the filter parameters with default values, if not provided'''
-
-		self.frequency=frequency
-		self.pvalue=pvalue
-		self.genotype=genotype
-		self.genotype_quality=genotype_quality
-		self.raw_read_depth=raw_read_depth
-		self.quality_read_depth=quality_read_depth
-		self.depth_in_reference=depth_in_reference
-		self.depth_in_variant=depth_in_variant
+		self.filter=filter(frequency, pvalue, genotype, genotype_quality, raw_read_depth, quality_read_depth, depth_in_reference, depth_in_variant)
 	def set_filename(self, vcf):
 		self.vcf=vcf
-	def get_record(self, record):
+	def set_record(self, record, samplename):
 		self.record=record
-		self.samplename = self.record.samples[0]
+		self.samplename = samplename
+
 	def filter_records(self):
 		''' Calls the filter class - get_passed_filter_records function to get the snp records that pass the filter step'''
-		filter = filter.get_passed_filter_records(self.vcf, self.frequency, self.pvalue, self.genotype, self.genotype_quality, self.raw_read_depth, self.quality_read_depth, self.depth_in_reference, self.depth_in_variant)
+		filter = self.filter.get_passed_filter_records(self.vcf, self.frequency, self.pvalue, self.genotype, self.genotype_quality, self.raw_read_depth, self.quality_read_depth, self.depth_in_reference, self.depth_in_variant)
 	def filter_a_record(self):
 		''' filter one record at a time '''
-		return passed_filter(self.record, self.samplename)
+		return self.filter.passed_filter(self.record, self.samplename)
 
 
 class compare_vcf_records():
@@ -135,12 +127,16 @@ if options.filter == True:
 
 	for key in vcf_database.keys():
 		vcf_reader=vcf.Reader(open(vcf_database[key]['filename']), 'r')
+		samplename= vcf_reader.samples[0]
 		for record in vcf_reader:
 			chromosome, position, ref, alt = record.CHROM, record.POS, record.REF, record.ALT
-			inputvcf.get_record(record)
+			inputvcf.set_record(record, samplename)
 			filter_result = inputvcf.filter_a_record()
 			if filter_result == True:
-				if  vcf_database[key]['snp_positions'].keys():
+				vcf_database[key]['snp_positions'][str(chromosome) + "_" + str(position)]= {'ref': ref, 'alt':alt}
+
+
+	print(vcf_database)
 
 
 

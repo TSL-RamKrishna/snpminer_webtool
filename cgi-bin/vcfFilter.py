@@ -26,8 +26,8 @@ import vcf
 
 class filter():
 	'''	A class for filtering SNPs in VCF files	'''
-	def __init__(self, vcffilename, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=30, raw_read_depth=10, quality_read_depth=10, depth_in_reference=10, depth_in_variant=10):
-		self.vcffilename = vcffilename
+	def __init__(self, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=30, raw_read_depth=10, quality_read_depth=10, depth_in_reference=10, depth_in_variant=10):
+		#self.vcffilename = vcffilename
 		self.frequency=frequency
 		self.pvalue=pvalue
 		self.genotype=genotype
@@ -37,21 +37,6 @@ class filter():
 		self.depth_in_reference=depth_in_reference
 		self.depth_in_variant=depth_in_variant
 
-		self.open_vcf()
-		self.count_successful_records=0
-		self.count_records=0
-		return
-	def open_vcf(self):
-		#self.vcf_reader=vcf.Reader(open(self.vcffilename, 'r'))
-		self.vcf_records=vcf.Reader(filename=self.vcffilename)
-		self.samplenames=self.vcf_records.samples
-	# def open_vcf_writer(self, out):
-	# 	self.vcf_writer=vcf.Writer(open(out, 'w'), self.vcf_reader)
-	def write_vcf(self, vcf_output, records):
-		self.vcf_writer=vcf.Writer(open(vcf_output, 'w'), self.vcf_records)
-		for record in records:
-			self.vcf_writer.write_record(record)
-		return
 	def get_a_record(self):
 		self.count_records+=1
 		return self.vcf_reader.next()
@@ -141,6 +126,7 @@ class filter():
 				self.check_depth_in_reference(record, samplename, self.depth_in_reference),
 				self.check_depth_in_variant(record, samplename, self.depth_in_variant)
 				]
+				
 		if all(results):      # also can be used if results.count(True) == 8
 			return True
 		else:
