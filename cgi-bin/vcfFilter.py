@@ -26,7 +26,7 @@ import vcf
 
 class filter():
 	'''	A class for filtering SNPs in VCF files	'''
-	def __init__(self, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=30, raw_read_depth=10, quality_read_depth=10, depth_in_reference=10, depth_in_variant=10):
+	def __init__(self, frequency=70, pvalue=0.05, genotype='heterozygous', genotype_quality=20, raw_read_depth=5, quality_read_depth=5, depth_in_reference=5, depth_in_variant=5):
 		#self.vcffilename = vcffilename
 		self.frequency=frequency
 		self.pvalue=pvalue
@@ -126,7 +126,7 @@ class filter():
 				self.check_depth_in_reference(record, samplename, self.depth_in_reference),
 				self.check_depth_in_variant(record, samplename, self.depth_in_variant)
 				]
-				
+
 		if all(results):      # also can be used if results.count(True) == 8
 			return True
 		else:

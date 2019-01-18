@@ -8,7 +8,6 @@ rootPath=os.path.dirname(os.path.abspath(sys.argv[0]))
 sys.path.append(rootPath)
 
 from vcfFilter import filter
-from compare_snps import compareSNPs
 
 parser=argparse.ArgumentParser(description='Script to filter the SNPs using user threshold values and compare the SNPs from multiple VCF files')
 
@@ -32,34 +31,6 @@ if len(options.vcf) ==1 and options.compare == True:
 vcffilenames  = options.vcf
 
 snpsites={}		# declare a dict type to store chromosome and snp positions
-
-for vcffilename in vcffilenames:
-	fh=open(vcffilename, 'r')
-	snpStart=False
-	for line in fh:
-		line=line.rstrip()
-		if line.startswith("#CHROM"):
-			snpStart=True
-			continue
-		elif line == "":
-			continue
-		else:
-
-			if snpStart == True:
-				linearray=line.split("\t")
-				chromosome=linearray[0]
-				position=linearray[1]
-				ref=linearray[3]
-				alt=linearray[4]
-				if  chromosome in snpsites.keys():
-					if position in snpsites[chromosome].keys():
-						continue
-					else:
-						snpsites[chromosome][position] = [False] * len(vcffilenames)
-				else:
-					snpsites.update({chromosome:{str(position): [False] * len(vcffilenames) }})
-
-	fh.close()
 
 
 
@@ -85,32 +56,96 @@ class filter_vcf_records():
 		return self.filter.passed_filter(self.record, self.samplename)
 
 
-class compare_vcf_records():
-	def __init__(self,database):
-		self.database=database
-		self.comparing=compareSNPs(self.database)
-	def get_common_records(self):
-		self.common_records=self.comparing.get_common_records()
-		# you may write common records to file
-	def get_unique_records(self):
-		self.uniq_record_db = self.comparing.get_unique_records()
-	def write_unique_records_snps(self):
-		for key in self.uniq_record_db.keys():
-			print("Key: ", key)
-			filename=self.uniq_record_db[key]["filename"]
-			vcf_reader=vcf.Reader(open(filename, 'r'))
-			vcf_writer=vcf.Writer(open(filename + "uniqueRecords.vcf", 'w'), vcf_reader)
-			for record in self.uniq_record_db[key]['uniqueRecords']:
-				#print("Uniq records: ", len(self.uniq_record_db[key]['uniqueRecords']))
-				vcf_writer.write_record(record)
-	def write_common_records_snps(self):
-		out=open('testfiles/common_records.txt', 'w')
-		for record in self.common_records:
-			out.write(" ".join(map(str,[record.CHROM, record.POS, record.REF, record.ALT, "\n"]) ) )
 
-def read_vcf_records(vcf_filename):
-	return list(vcf.Reader(filename=vcf_filename))
+def create_db_for_all_snps(chromosome, position ):
 
+	if  chromosome in snpsites.keys():
+		if position in snpsites[chromosome].keys():
+			return
+		else:
+			snpsites[chromosome][str(position)] = [False] * len(vcffilenames)
+	else:
+		snpsites.update({chromosome:{str(position): [False] * len(vcffilenames) }})
+
+
+def filter_snps(do_filter=False):
+
+	key_counter=0
+	for key in vcf_database.keys():
+		vcf_reader=vcf.Reader(open(vcf_database[key]['filename']), 'r')
+		samplename= vcf_reader.samples[0]
+		for record in vcf_reader:
+			chromosome, position, ref, alt = record.CHROM, record.POS, record.REF, record.ALT
+			position=str(position)
+
+			## code to build all snps position
+			create_db_for_all_snps(chromosome, position)
+
+			inputvcf.set_record(record, samplename)
+			filter_result = inputvcf.filter_a_record()
+			if do_filter==True:
+				if filter_result == True:
+					vcf_database[key]['snp_positions'][chromosome + "_" + str(position)]= {'ref': ref, 'alt':alt}
+					snpsites[chromosome][str(position)][key_counter]= True
+			else:
+				vcf_database[key]['snp_positions'][chromosome + "_" + str(position)]= {'ref': ref, 'alt':alt}
+				snpsites[chromosome][str(position)][key_counter]= True
+		key_counter+=1
+
+def get_unique_snps():
+	''' Get snps unique to a vcf file '''
+
+	key_counter=0
+	for key in vcf_database.keys():
+		filename = vcf_database[key]['filename']
+		for chromosome in snpsites.keys():
+			for position in snpsites[chromosome].keys():
+				snp_array_in_bool = iter(snpsites[chromosome][position])
+				if snpsites[chromosome][position][key_counter] == True and any(snp_array_in_bool) == True and any(snp_array_in_bool) == False:  # First any(array) finds first True and second any(array) finds another True, if second True, it will say False
+					# This is unique snp
+					#vcf_database[key]['unique_snps'].append([chromosome, position, vcf_database[key]['snp_positions'][chromosome + "_" + position]['ref'], ",".join(vcf_database[key]['snp_positions'][chromosome + "_" + position]['alt']) ])
+					vcf_database[key]['snp_positions'][chromosome + "_" + position].update({'unique':True})
+				#else:
+				#	vcf_database[key]['snp_positions'][chromosome + "_" + position].update({'unique':False})
+
+
+
+		key_counter+=1
+
+def get_common_snps():
+
+	''' Get snps common to all vcf files'''
+
+	key_counter=0
+	for key in vcf_database.keys():
+		filename = vcf_database[key]['filename']
+		for chromosome in snpsites.keys():
+			for position in snpsites[chromosome].keys():
+				if all(snpsites[chromosome][position]) == True:
+					vcf_database[key]['snp_positions'][chromosome + "_" + position].update({'common' : True})
+				#else:
+				#	vcf_database[key]['snp_positions'][chromosome + "_" + positon].update({'common' : True})
+
+		key_counter+=1
+
+def get_snp_data():
+	print
+	for key in vcf_database.keys():
+		print('Filename : ', vcf_database[key]['filename'])
+		for snp in vcf_database[key]['snp_positions'].keys():
+			if 'common' in vcf_database[key]['snp_positions'][snp].keys():
+				print (snp.replace("_" ," "), vcf_database[key]['snp_positions'][snp]['ref'], vcf_database[key]['snp_positions'][snp]['alt'], 'common')
+			elif 'unique' in vcf_database[key]['snp_positions'][snp].keys():
+				print(snp.replace("_" ," "), vcf_database[key]['snp_positions'][snp]['ref'], vcf_database[key]['snp_positions'][snp]['alt'], 'unique')
+
+		print("\n")
+
+	return
+
+def compare_snps():
+
+	get_unique_snps()
+	get_common_snps()
 #construct a database of vcf filename and records
 
 vcf_database={}
@@ -122,31 +157,26 @@ for vcfinput in options.vcf:
 
 # Read the snps from vcf and filter them one by one.
 
+inputvcf = filter_vcf_records()  # create object to filter records
 if options.filter == True:
-	inputvcf = filter_vcf_records()  # create object to filter records
-
-	for key in vcf_database.keys():
-		vcf_reader=vcf.Reader(open(vcf_database[key]['filename']), 'r')
-		samplename= vcf_reader.samples[0]
-		for record in vcf_reader:
-			chromosome, position, ref, alt = record.CHROM, record.POS, record.REF, record.ALT
-			inputvcf.set_record(record, samplename)
-			filter_result = inputvcf.filter_a_record()
-			if filter_result == True:
-				vcf_database[key]['snp_positions'][str(chromosome) + "_" + str(position)]= {'ref': ref, 'alt':alt}
-
-
-	print(vcf_database)
-
-
-
-
+	filter_snps(True)
+else:
+	filter_snps(False)
 
 if options.compare == True:
-	compare = compare_vcf_records(vcf_database)
-	compare.get_common_records()
-	compare.get_unique_records()
-	compare.write_common_records_snps()
-	compare.write_unique_records_snps()
+	get_unique_snps()
+	get_common_snps()
+	#compare = compare_vcf_records(vcf_database)
+	#compare.get_common_records()
+	#compare.get_unique_records()
+	#compare.write_common_records_snps()
+	#compare.write_unique_records_snps()
 	## To compare the SNPs, we need at least two vcf files
 	## for vcf files x, y and z, compare snps will output x - y, x - z
+
+
+print('vcf database :', vcf_database)
+print('all snp sites :', snpsites)
+get_snp_data()
+
+exit(0)
