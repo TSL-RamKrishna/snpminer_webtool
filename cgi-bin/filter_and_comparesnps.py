@@ -14,6 +14,7 @@ parser=argparse.ArgumentParser(description='Script to filter the SNPs using user
 parser.add_argument('--vcf', action='store', dest='vcf', nargs='+', help='Space separated vcf input files')
 parser.add_argument('--filter', action='store_true', dest='filter', default=False, help='Filter the SNPs')
 parser.add_argument('--compare', action='store_true', dest='compare', default=False, help='Compare the SNPs')
+parser.add_argument('--show', action='store_true', dest='display', default=False, help='Display the results on the screen')
 
 options=parser.parse_args()
 if not options.vcf:
@@ -106,59 +107,71 @@ def filter_snps(do_filter=False):
 
 		key_counter+=1
 
+def count_list_elements_occurrences(array):
+	counts=[]
+	for x in array:
+		counts.append(array.count(x))
+	return counts
+
 
 def get_unique_snps():
 	''' Get snps unique to a vcf file '''
 
-	for chromosome in snpsites.keys():
-		for position in snpsites[chromosome].keys():
-			if sum(snpsites[chromosome][position]) > 1: # this is not unique snp as there are more than 1 
-			[snp_index for snp_index, index in enumerate(snpsites[chromosome][position]) if index == True]
-			for filename in vcffilenames:
 
 
 	key_counter = 0
-	for filename in vcffilenames:
-		for chromosome in snpsites.keys():
-			for position in snpsites[chromosome].keys():
-				snp_array_in_bool = iter(snpsites[chromosome][position])
-				if snpsites[chromosome][position][key_counter] == True and sum(snpsites[chromosome][position]) == 1:  # First any(array) finds first True and second any(array) finds another True, if second True, it will say False
-					# This is unique snp
-					#vcf_database[key]['unique_snps'].append([chromosome, position, vcf_database[key]['snp_positions'][chromosome + "_" + position]['ref'], ",".join(vcf_database[key]['snp_positions'][chromosome + "_" + position]['alt']) ])
-					snp_positions[filename][chromosome][position].update({'unique':True})
-				#else:
-				#	vcf_database['snp_positions'][chromosome + "_" + position].update({'unique':False})
-		key_counter+=1
+
+	for chromosome in snpsites.keys():
+		for position in snpsites[chromosome].keys():
+			if snpsites[chromosome][position][key_counter] == True and sum(snpsites[chromosome][position]) == 1:  # First any(array) finds first True and second any(array) finds another True, if second True, it will say False
+				# This is unique snp
+
+				#vcf_database[key]['unique_snps'].append([chromosome, position, vcf_database[key]['snp_positions'][chromosome + "_" + position]['ref'], ",".join(vcf_database[key]['snp_positions'][chromosome + "_" + position]['alt']) ])
+				snp_positions[vcffilenames[key_counter]][chromosome][position].update({'unique':True})
+			elif sum(snpsites[chromosome][position]) >=2:		# there might be snp at same position but with different alt base
+				print("more than two true found")
+				snp_index = [i for i, j in enumerate(snpsites[chromosome][position]) if j==True]
+				print(snp_index)
+				totalindex = len(snp_index)
+				# Lets check the alt base in these vcf files using index
+				# lets get array of alt bases from each file
+				alt_snps=[]
+				for index in snp_index:
+					alt_snps.append(snp_positions[vcffilenames[index]][chromosome][position]['alt'])
+
+				# get the counts of the elements
+
+				counts = count_list_elements_occurrences(alt_snps)
+				print(alt_snps, counts)
+				for index in range(len(counts)):
+					if counts[index] == 1:
+						# this is unique, so occurred once
+						snp_positions[vcffilenames[snp_index[index]]][chromosome][position].update({'unique':True}) # vcffilenames[snp_index[index]] =  this will be the filename
+
+
+			#else:
+			#	vcf_database['snp_positions'][chromosome + "_" + position].update({'unique':False})
+	key_counter+=1
 
 	return
 
 def get_common_snps():
 
 	''' Get snps common to all vcf files'''
-	for filename in vcffilenames:
-		for chromosome in snpsites.keys():
-			for position in snpsites[chromosome].keys():
-				if all(snpsites[chromosome][position]) == True:
-					snp_positions[filename][chromosome][position].update({'common' : True})
+
+	for chromosome in snpsites.keys():
+		for position in snpsites[chromosome].keys():
+			if all(snpsites[chromosome][position]) == True:
+				#lets check if all alt bases are same
+				alt_snps=[]
+				for index in range(len(snpsites[chromosome][position])):
+					alt_snps.append(snp_positions[vcffilenames[index]][chromosome][position]['alt'])
+				counts = count_list_elements_occurrences(alt_snps)
+				if len(set(counts)) == 1:
+					for index in range(len(vcffilenames)):
+						snp_positions[vcffilenames[index]][chromosome][position].update({'common' : True})
 				#else:
 				#	vcf_database[key]['snp_positions'][chromosome + "_" + positon].update({'common' : True})
-
-
-def get_snp_data():
-	print
-	for filename in vcffilenames:
-		print("Filename: ", filename)
-		for chromosome in snp_positions[filename].keys():
-			for position in snp_positions[filename][chromosome].keys():
-				if 'common' in snp_positions[filename][chromosome][position].keys():
-					print()
-				elif 'unique' in snp_positions[filename][chromosome][position].keys():
-					print(chrome, position, snp_positions[filename][chromosome][position]['ref'], snp_positions[filename][chromosome][position]['alt'], 'unique')
-
-
-		print("\n")
-
-	return
 
 def save_display_common_unique_snps(save=True, display=False):
 
@@ -166,16 +179,16 @@ def save_display_common_unique_snps(save=True, display=False):
 		outfh=open(filename.replace(".vcf", "") + "_snpanalysis.txt", "w")
 		for chromosome in snp_positions[filename].keys():
 			for position in snp_positions[filename][chromosome].keys():
-				if 'common' in snp_positions[filename][chromosome][position].keys():
+				if 'common' in snp_positions[filename][chromosome][position].keys() and snp_positions[filename][chromosome][position]['common'] == True:
 					if save == True:
 						outfh.write(" ".join([chromosome,position, snp_positions[filename][chromosome][position]['ref'], snp_positions[filename][chromosome][position]['alt'], 'common']) + "\n")
 					if display == True:
 						print(" ".join([chromosome,position, snp_positions[filename][chromosome][position]['ref'], snp_positions[filename][chromosome][position]['alt'], 'common']))
-				elif 'unique' in snp_positions[filename][chromosome][position].keys():
+				elif 'unique' in snp_positions[filename][chromosome][position].keys() and snp_positions[filename][chromosome][position]['unique'] == True:
 					if save == True:
 						outfh.write(" ".join([chromosome,position, snp_positions[filename][chromosome][position]['ref'], snp_positions[filename][chromosome][position]['alt'], 'unique']) + "\n")
 					if display == True:
-						print(" ".join([chromosome,position, snp_positions[filename][chromosome][position]['ref'], snp_positions[filename][chromosome][position]['alt'], 'unique']))
+						print(" ".join([chromosome, position, snp_positions[filename][chromosome][position]['ref'], snp_positions[filename][chromosome][position]['alt'], 'unique']))
 
 		outfh.close()
 
@@ -184,7 +197,7 @@ def save_display_common_unique_snps(save=True, display=False):
 def compare_snps():
 
 	get_unique_snps()
-	get_common_snps()
+	#get_common_snps()
 
 
 #construct a database of vcf filename and records
