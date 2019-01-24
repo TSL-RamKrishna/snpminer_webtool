@@ -67,6 +67,7 @@ def create_db_for_all_snps(chromosome, position ):
 		snpsites.update({chromosome:{str(position): [False] * len(vcffilenames) }})
 
 def add_snp_to_database(filename, chromosome, position, ref, alt):
+	'append the snp records to the dictionary data structure once they passed the filter'
 
 	if filename in snp_positions.keys():
 		if chromosome in snp_positions[filename].keys():
@@ -78,6 +79,7 @@ def add_snp_to_database(filename, chromosome, position, ref, alt):
 
 
 def filter_snps(do_filter=False):
+	'Filter the snps using threshold values as defined'
 
 	key_counter = 0
 	for filename in  vcffilenames:
@@ -108,6 +110,7 @@ def filter_snps(do_filter=False):
 		key_counter+=1
 
 def count_list_elements_occurrences(array):
+	'return an array showing the count of each element of input array'
 	counts=[]
 	for x in array:
 		counts.append(array.count(x))
@@ -116,8 +119,6 @@ def count_list_elements_occurrences(array):
 
 def get_unique_snps():
 	''' Get snps unique to a vcf file '''
-
-
 
 	key_counter = 0
 
@@ -147,6 +148,7 @@ def get_unique_snps():
 					if counts[index] == 1:
 						# this is unique, so occurred once
 						snp_positions[vcffilenames[snp_index[index]]][chromosome][position].update({'unique':True}) # vcffilenames[snp_index[index]] =  this will be the filename
+						#print("this is unique", vcffilenames[snp_index[index]], chromosome, position, snp_positions[vcffilenames[snp_index[index]]][chromosome][position])
 
 
 			#else:
@@ -166,10 +168,14 @@ def get_common_snps():
 				alt_snps=[]
 				for index in range(len(snpsites[chromosome][position])):
 					alt_snps.append(snp_positions[vcffilenames[index]][chromosome][position]['alt'])
+				print(alt_snps)
 				counts = count_list_elements_occurrences(alt_snps)
-				if len(set(counts)) == 1:
-					for index in range(len(vcffilenames)):
-						snp_positions[vcffilenames[index]][chromosome][position].update({'common' : True})
+				print(snp_positions[vcffilenames[index]], chromosome, position, set(counts), counts)
+				for countindex in range(len(counts)):
+					if counts[countindex] == len(vcffilenames):
+							snp_positions[vcffilenames[countindex]][chromosome][position].update({'common' : True})
+
+				#print(snp_positions[vcffilenames[index]], chromosome, position, set(counts), counts)
 				#else:
 				#	vcf_database[key]['snp_positions'][chromosome + "_" + positon].update({'common' : True})
 
