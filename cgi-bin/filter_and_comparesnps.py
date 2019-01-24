@@ -180,7 +180,7 @@ def get_common_snps():
 				#	vcf_database[key]['snp_positions'][chromosome + "_" + positon].update({'common' : True})
 
 def save_display_common_unique_snps(save=True, display=False):
-
+	
 	for filename in vcffilenames:
 		outfh=open(filename.replace(".vcf", "") + "_snpanalysis.txt", "w")
 		for chromosome in snp_positions[filename].keys():
