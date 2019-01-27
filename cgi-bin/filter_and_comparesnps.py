@@ -14,6 +14,14 @@ parser=argparse.ArgumentParser(description='Script to filter the SNPs using user
 parser.add_argument('--vcf', action='store', dest='vcf', nargs='+', help='Space separated vcf input files')
 parser.add_argument('--filter', action='store_true', dest='filter', default=False, help='Filter the SNPs')
 parser.add_argument('--compare', action='store_true', dest='compare', default=False, help='Compare the SNPs')
+parser.add_argument('--frequency', action='store', dest='frequency', default=70, type=int, help='Frequency of SNP call. Default: 70 [int]')
+parser.add_argument('--pvalue', action='store', dest='pvalue', default=0.05, type=float, help='Pvalue of the SNP call. Default: 0.05 [float]' )
+parser.add_argument('--genotype', action='store', dest='genotype', default='heterozygous', type=str, help='Genotype of the SNP call - heterozygous/homozygous/both. Default: heterozygous')
+parser.add_argument('--quality', action='store', dest='genotype_quality', default=10, type=int, help='Genotype quality of the SNP call. Default: 10')
+parser.add_argument('--rawreaddepth', action='store', dest='raw_read_depth', default=5, type=int, help='Raw read depth of the SNP call. Default: 5')
+parser.add_argument('--qualityreaddepth', action='store', dest='quality_read_depth', default=5, type=int, help='Quality read depth of the SNP call. Default: 5')
+parser.add_argument('--depthreference', action='store', dest='depth_in_reference', default=5, type=int, help='Depth in reference of the SNP call. Default: 5')
+parser.add_argument('--depthvariant', action='store', dest='depth_in_variant', default=5, type=int, help='Depth in variant of the SNP call. Default: 5')
 parser.add_argument('--show', action='store_true', dest='display', default=False, help='Display the results on the screen')
 
 options=parser.parse_args()
@@ -39,7 +47,18 @@ class filter_vcf_records():
 	'''
 
 	def __init__(self, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=10, raw_read_depth=1, quality_read_depth=1, depth_in_reference=1, depth_in_variant=1):
-		''' Initialize the filter parameters with default values, if not provided'''
+		'''
+		Initialize the filter parameters with default values, if not provided.
+		Parameters used are:
+		Frequency
+		Pvalue
+		Genotype
+		Genotype Quality
+		Raw Read Depth
+		Quality Read Depth
+		Depth in Reference
+		Depth in Variant
+		'''
 		self.filter=filter(frequency, pvalue, genotype, genotype_quality, raw_read_depth, quality_read_depth, depth_in_reference, depth_in_variant)
 	def set_filename(self, vcf):
 		self.vcf=vcf
@@ -180,7 +199,7 @@ def get_common_snps():
 				#	vcf_database[key]['snp_positions'][chromosome + "_" + positon].update({'common' : True})
 
 def save_display_common_unique_snps(save=True, display=False):
-	
+
 	for filename in vcffilenames:
 		outfh=open(filename.replace(".vcf", "") + "_snpanalysis.txt", "w")
 		for chromosome in snp_positions[filename].keys():
@@ -213,7 +232,7 @@ def compare_snps():
 
 # Read the snps from vcf and filter them one by one.
 
-inputvcf = filter_vcf_records()  # create object to filter records
+inputvcf = filter_vcf_records(options.frequency, options.pvalue, options.genotype, options.genotype_quality, options.raw_read_depth, options.quality_read_depth, options.depth_in_reference, options.depth_in_variant)  # create object to filter records
 if options.filter == True:
 	filter_snps(True)
 else:
