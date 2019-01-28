@@ -23,23 +23,14 @@ parser.add_argument('--qualityreaddepth', action='store', dest='quality_read_dep
 parser.add_argument('--depthreference', action='store', dest='depth_in_reference', default=5, type=int, help='Depth in reference of the SNP call. Default: 5')
 parser.add_argument('--depthvariant', action='store', dest='depth_in_variant', default=5, type=int, help='Depth in variant of the SNP call. Default: 5')
 parser.add_argument('--show', action='store_true', dest='display', default=False, help='Display the results on the screen')
-
-options=parser.parse_args()
-if not options.vcf:
-	print("Input VCF file/s not provided. Use option --vcf to provde the input VCF files (mutliple vcf files should be space separated)")
-	exit(1)
-if len(options.vcf) ==1 and options.compare == True:
-	print("Number of VCF files provided : ", len(options.vcf))
-	print("SNP compare will not be done.")
-	options.compare=False
+parser.add_argument('--show', action='store_true', dest='display', default=False, help='Display the results on the screen')
+parser.add_argument('--outdir', action='store', dest="outdir", default=os.path.abspath('.'), help='Path to the output folder. Default: Current working directory')
 
 
 
-vcffilenames  = options.vcf
-
-snpsites={}		# declare a dict type to store chromosome and snp positions
-snp_positions={}
-
+snpsites={}		# declare a dict type to store chromosome and snp positions from all vcfs
+snp_positions={}	# stores chromosome, position, ref and alt for each vcf file
+inputvcf = filter_vcf_records()	# instance of filtering
 
 class filter_vcf_records():
 	'''
@@ -47,18 +38,7 @@ class filter_vcf_records():
 	'''
 
 	def __init__(self, frequency=75, pvalue=0.05, genotype='heterozygous', genotype_quality=10, raw_read_depth=1, quality_read_depth=1, depth_in_reference=1, depth_in_variant=1):
-		'''
-		Initialize the filter parameters with default values, if not provided.
-		Parameters used are:
-		Frequency
-		Pvalue
-		Genotype
-		Genotype Quality
-		Raw Read Depth
-		Quality Read Depth
-		Depth in Reference
-		Depth in Variant
-		'''
+		''' Initialize the filter parameters with default values, if not provided'''
 		self.filter=filter(frequency, pvalue, genotype, genotype_quality, raw_read_depth, quality_read_depth, depth_in_reference, depth_in_variant)
 	def set_filename(self, vcf):
 		self.vcf=vcf
@@ -149,9 +129,9 @@ def get_unique_snps():
 				#vcf_database[key]['unique_snps'].append([chromosome, position, vcf_database[key]['snp_positions'][chromosome + "_" + position]['ref'], ",".join(vcf_database[key]['snp_positions'][chromosome + "_" + position]['alt']) ])
 				snp_positions[vcffilenames[key_counter]][chromosome][position].update({'unique':True})
 			elif sum(snpsites[chromosome][position]) >=2:		# there might be snp at same position but with different alt base
-				print("more than two true found")
+
 				snp_index = [i for i, j in enumerate(snpsites[chromosome][position]) if j==True]
-				print(snp_index)
+
 				totalindex = len(snp_index)
 				# Lets check the alt base in these vcf files using index
 				# lets get array of alt bases from each file
@@ -162,7 +142,7 @@ def get_unique_snps():
 				# get the counts of the elements
 
 				counts = count_list_elements_occurrences(alt_snps)
-				print(alt_snps, counts)
+
 				for index in range(len(counts)):
 					if counts[index] == 1:
 						# this is unique, so occurred once
@@ -187,9 +167,9 @@ def get_common_snps():
 				alt_snps=[]
 				for index in range(len(snpsites[chromosome][position])):
 					alt_snps.append(snp_positions[vcffilenames[index]][chromosome][position]['alt'])
-				print(alt_snps)
+
 				counts = count_list_elements_occurrences(alt_snps)
-				print(snp_positions[vcffilenames[index]], chromosome, position, set(counts), counts)
+
 				for countindex in range(len(counts)):
 					if counts[countindex] == len(vcffilenames):
 							snp_positions[vcffilenames[countindex]][chromosome][position].update({'common' : True})
@@ -199,9 +179,11 @@ def get_common_snps():
 				#	vcf_database[key]['snp_positions'][chromosome + "_" + positon].update({'common' : True})
 
 def save_display_common_unique_snps(save=True, display=False):
-
+	'save the results to files and/or display the results'
 	for filename in vcffilenames:
-		outfh=open(filename.replace(".vcf", "") + "_snpanalysis.txt", "w")
+		outfile=options.outdir + "/" + os.path.basename(filename).replace(".vcf", "") + "_snpanalysis.txt"
+		outfh=open(outfile, "w")
+		print("Output saved in :", outfile)
 		for chromosome in snp_positions[filename].keys():
 			for position in snp_positions[filename][chromosome].keys():
 				if 'common' in snp_positions[filename][chromosome][position].keys() and snp_positions[filename][chromosome][position]['common'] == True:
@@ -219,39 +201,44 @@ def save_display_common_unique_snps(save=True, display=False):
 
 	return
 
-def compare_snps():
+def main():
 
-	get_unique_snps()
-	#get_common_snps()
+	#construct a database of vcf filename and records
+	# Read the snps from vcf and filter them one by one.
+
+	if options.filter == True:
+		filter_snps(True)
+	else:
+		filter_snps(False)
+
+	if options.compare == True:
+		get_unique_snps()
+		get_common_snps()
+		#compare = compare_vcf_records(vcf_database)
+		#compare.get_common_records()
+		#compare.get_unique_records()
+		#compare.write_common_records_snps()
+		#compare.write_unique_records_snps()
+		## To compare the SNPs, we need at least two vcf files
+		## for vcf files x, y and z, compare snps will output x - y, x - z
+
+	save_display_common_unique_snps(save=True, display=options.display)
+
+if  __name__ == '__main__':
+
+	options=parser.parse_args()
+	if not options.vcf:
+		print("Input VCF file/s not provided. Use option --vcf to provde the input VCF files (mutliple vcf files should be space separated)")
+		exit(1)
+	if len(options.vcf) ==1 and options.compare == True:
+		print("Number of VCF files provided : ", len(options.vcf))
+		print("SNP compare will not be done.")
+		options.compare=False
 
 
-#construct a database of vcf filename and records
+
+	vcffilenames  = options.vcf
 
 
-
-
-# Read the snps from vcf and filter them one by one.
-
-inputvcf = filter_vcf_records(options.frequency, options.pvalue, options.genotype, options.genotype_quality, options.raw_read_depth, options.quality_read_depth, options.depth_in_reference, options.depth_in_variant)  # create object to filter records
-if options.filter == True:
-	filter_snps(True)
-else:
-	filter_snps(False)
-
-print(snp_positions)
-
-if options.compare == True:
-	get_unique_snps()
-	get_common_snps()
-	#compare = compare_vcf_records(vcf_database)
-	#compare.get_common_records()
-	#compare.get_unique_records()
-	#compare.write_common_records_snps()
-	#compare.write_unique_records_snps()
-	## To compare the SNPs, we need at least two vcf files
-	## for vcf files x, y and z, compare snps will output x - y, x - z
-
-save_display_common_unique_snps(save=True, display=True)
-
-
+	main()
 exit(0)
