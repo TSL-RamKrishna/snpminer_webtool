@@ -1,9 +1,0 @@
-multiplesamples_NA00001_NA00002_NA00003
-multiplesamples_NA00001_NA00002_NA00003
-name_question_NA00001_NA00002_NA00003
-Now merging them
-perl -I ./lib ./vcftoolScripts/vcf-merge N.vcf.gz A.vcf.gz 0.vcf.gz 0.vcf.gz 0.vcf.gz 0.vcf.gz 3.vcf.gz > N_A_0_0_0_0_3.vcf
-only one sample here
-./otherscripts/bgzip Sample1.vcf; ./otherscripts/tabix Sample1.vcf.gz
-only one sample here
-./otherscripts/bgzip Sample2.vcf; ./otherscripts/tabix Sample2.vcf.gz
