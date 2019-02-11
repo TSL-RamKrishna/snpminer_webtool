@@ -72,6 +72,8 @@ To check the options::
    :maxdepth: 2
    :caption: Contents:
 
+   filter_and_comparesnps
+   vcfFilter
    contributions
 
 
