@@ -1,4 +1,4 @@
 ## Introduction
 
-A web tool for vcf snps filtering and comparing command or alternate snps between vcf files
+A web tool for filtering and comparing SNPs in two or multiple VCF files.
 
