@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>filter_and_comparesnps &mdash; snpFC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> snpFC
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributions.html">Contributions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">snpFC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>filter_and_comparesnps</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for filter_and_comparesnps</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">vcf</span>
+
+<span class="n">rootPath</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rootPath</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">vcfFilter</span> <span class="k">import</span> <span class="nb">filter</span>
+
+<span class="n">parser</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Script to filter the SNPs using user threshold values and compare the SNPs from multiple VCF files&quot;</span><span class="p">)</span>
+
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--vcf&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;vcf&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;+&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Space separated vcf input files&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--filter&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;filter&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filter the SNPs&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--compare&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;compare&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compare the SNPs&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--frequency&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;frequency&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Frequency of SNP call. Default: 70 [int]&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--pvalue&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;pvalue&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Pvalue of the SNP call. Default: 0.05 [float]&quot;</span> <span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--genotype&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;genotype&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;heterozygous&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Genotype of the SNP call - heterozygous/homozygous/both. Default: heterozygous&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--quality&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;genotype_quality&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Genotype quality of the SNP call. Default: 10&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--rawreaddepth&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;raw_read_depth&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Raw read depth of the SNP call. Default: 5&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--qualityreaddepth&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;quality_read_depth&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Quality read depth of the SNP call. Default: 5&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--depthreference&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;depth_in_reference&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Depth in reference of the SNP call. Default: 5&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--depthvariant&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;depth_in_variant&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Depth in variant of the SNP call. Default: 5&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--show&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;display&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display the results on the screen&quot;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--outdir&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;outdir&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to the output folder. Default: Current working directory&quot;</span><span class="p">)</span>
+
+
+
+<span class="n">snpsites</span><span class="o">=</span><span class="p">{}</span>		<span class="c1"># declare a dict type to store chromosome and snp positions from all vcfs</span>
+<span class="n">snp_positions</span><span class="o">=</span><span class="p">{}</span>	<span class="c1"># stores chromosome, position, ref and alt for each vcf file</span>
+<span class="n">vcffilenames</span><span class="o">=</span><span class="p">[]</span>
+
+
+<div class="viewcode-block" id="filter_vcf_records"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.filter_vcf_records">[docs]</a><span class="k">class</span> <span class="nc">filter_vcf_records</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">	a class to filter the vcf SNP records based on the thresholds provided</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">pvalue</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">genotype</span><span class="o">=</span><span class="s2">&quot;heterozygous&quot;</span><span class="p">,</span> <span class="n">genotype_quality</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">raw_read_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">quality_read_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depth_in_reference</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">depth_in_variant</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Initializes the filter parameters with default values, if not provided</span>
+<span class="sd">			args:</span>
+<span class="sd">				:type frequency: int</span>
+<span class="sd">				:param frequency: Frequency of the ALT base in the SNP position</span>
+
+<span class="sd">				:type pvalue: float</span>
+<span class="sd">				:param pvalue: pvalue of the SNP call</span>
+
+<span class="sd">				:type genotype: string</span>
+<span class="sd">				:param genotype: genotype call heterozygous or homozygous of the SNP</span>
+
+<span class="sd">				:type genotype_quality: int</span>
+<span class="sd">				:param genotype_quality: quality value of the genotype</span>
+
+<span class="sd">				:type raw_read_depth: int</span>
+<span class="sd">				:param raw_read_depth: Raw read depth in the SNP call</span>
+
+<span class="sd">				:type quality_read_depth: int</span>
+<span class="sd">				:param quality_read_depth: Quality Read Depth of bases with Phred score &gt;= 15</span>
+
+<span class="sd">				:type depth_in_reference: int</span>
+<span class="sd">				:param depth_in_reference: depth in reference supporting bases (read1)</span>
+
+<span class="sd">				:type depth_in_variant: int</span>
+<span class="sd">				:param depth_in_variant: depth in variant supporting bases (read2)</span>
+<span class="sd">			returns:</span>
+<span class="sd">				None</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="n">frequency</span><span class="p">,</span> <span class="n">pvalue</span><span class="p">,</span> <span class="n">genotype</span><span class="p">,</span> <span class="n">genotype_quality</span><span class="p">,</span> <span class="n">raw_read_depth</span><span class="p">,</span> <span class="n">quality_read_depth</span><span class="p">,</span> <span class="n">depth_in_reference</span><span class="p">,</span> <span class="n">depth_in_variant</span><span class="p">)</span>
+
+<div class="viewcode-block" id="filter_vcf_records.set_filename"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.filter_vcf_records.set_filename">[docs]</a>	<span class="k">def</span> <span class="nf">set_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vcf</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			sets the VCF filename</span>
+<span class="sd">			:type vcf: string</span>
+<span class="sd">			:param vcf: VCF filename</span>
+
+<span class="sd">			returns:</span>
+<span class="sd">				None</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">vcf</span><span class="o">=</span><span class="n">vcf</span></div>
+
+<div class="viewcode-block" id="filter_vcf_records.set_record"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.filter_vcf_records.set_record">[docs]</a>	<span class="k">def</span> <span class="nf">set_record</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; set a SNP record and record samplename</span>
+<span class="sd">		:type record: pyVCF object</span>
+<span class="sd">		:param record: a SNP record in a VCF file</span>
+
+<span class="sd">		:type samplename: string</span>
+<span class="sd">		:param samplename: name of a sample in the SNP call</span>
+
+<span class="sd">		returns:</span>
+<span class="sd">			None</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="o">=</span><span class="n">record</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">samplename</span> <span class="o">=</span> <span class="n">samplename</span></div>
+
+<div class="viewcode-block" id="filter_vcf_records.filter_records"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.filter_vcf_records.filter_records">[docs]</a>	<span class="k">def</span> <span class="nf">filter_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+		<span class="sd">&quot;&quot;&quot; (obsolete now) Filters all SNP records from a vcf filename</span>
+<span class="sd">			returns: list of pyvcf SNP objects that have passed the filter</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="nb">filter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">get_passed_filter_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vcf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pvalue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">genotype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">genotype_quality</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_read_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quality_read_depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_reference</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_variant</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="filter_vcf_records.filter_a_record"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.filter_vcf_records.filter_a_record">[docs]</a>	<span class="k">def</span> <span class="nf">filter_a_record</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+		<span class="sd">&quot;&quot;&quot; Filters one SNP record at a time &quot;&quot;&quot;</span>
+
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filter</span><span class="o">.</span><span class="n">passed_filter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">record</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">samplename</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="filter_snps"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.filter_snps">[docs]</a><span class="k">def</span> <span class="nf">filter_snps</span><span class="p">(</span><span class="n">do_filter</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Filter the snps using threshold values as defined and populates the global variable to with SNP records</span>
+
+<span class="sd">		:type do_filter: boolean</span>
+<span class="sd">		:param do_filter: decision to filter the SNPs or not</span>
+
+<span class="sd">		return:</span>
+<span class="sd">			None</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+
+
+	<span class="k">def</span> <span class="nf">create_db_for_all_snps</span><span class="p">(</span><span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span> <span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			records all chromosome and positions in global variable (dictionary data structure) and initializes with an array of False boolean values for each vcf input file</span>
+<span class="sd">			Each boolean value is a positional value of a snp in input vcf files in an array.</span>
+<span class="sd">			E.g. if input vcf files are [&quot;test1.vcf&quot;, &quot;test2.vcf&quot;, &quot;test3.vcf&quot;]</span>
+<span class="sd">			snpsites[&quot;chr1&quot;][&quot;1&quot;] = [False, False, False]</span>
+<span class="sd">			snpsites[&quot;chr1&quot;][&quot;10&quot;] = [False, False, False]</span>
+<span class="sd">			snpsites[&quot;chr2&quot;][&quot;1&quot;] = [False, False, False]</span>
+
+<span class="sd">			:type chromosome: string</span>
+<span class="sd">			:param chromosome: name of the chromosome</span>
+
+<span class="sd">			:type position: int</span>
+<span class="sd">			:param position: position of SNP call in the chromosome</span>
+
+<span class="sd">			return:</span>
+<span class="sd">				None</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span>  <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">snpsites</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">)</span> <span class="ow">in</span> <span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="k">return</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcffilenames</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">snpsites</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">chromosome</span><span class="p">:{</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">):</span> <span class="p">[</span><span class="kc">False</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcffilenames</span><span class="p">)</span> <span class="p">}})</span>
+
+	<span class="k">def</span> <span class="nf">add_snp_to_database</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">alt</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			append the snp records to the dictionary data structure once they passed the filter</span>
+
+<span class="sd">			:type filename: string</span>
+<span class="sd">			:param filename: vcf filename</span>
+
+<span class="sd">			:type chromosome: string</span>
+<span class="sd">			:param chromosome: chromosome name on which SNP was call</span>
+
+<span class="sd">			:type position: int</span>
+<span class="sd">			:param position: base position in the chromosome</span>
+
+<span class="sd">			:type ref: String</span>
+<span class="sd">			:param ref: reference base in SNP call</span>
+
+<span class="sd">			:type alt: String</span>
+<span class="sd">			:param alt: alternate base in SNP call</span>
+
+<span class="sd">			return:</span>
+<span class="sd">				None</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">snp_positions</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">if</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">):{</span><span class="s2">&quot;ref&quot;</span><span class="p">:</span><span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">alt</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)}}</span> <span class="p">)</span>
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">chromosome</span><span class="p">:{</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">):{</span><span class="s2">&quot;ref&quot;</span><span class="p">:</span><span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">alt</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)}}})</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">snp_positions</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">filename</span><span class="p">:{</span><span class="n">chromosome</span><span class="p">:{</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">)</span> <span class="p">:</span> <span class="p">{</span><span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="n">ref</span><span class="p">,</span> <span class="s2">&quot;alt&quot;</span><span class="p">:</span><span class="nb">str</span><span class="p">(</span><span class="n">alt</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)}}}})</span>
+
+	<span class="n">key_counter</span> <span class="o">=</span> <span class="mi">0</span>
+	<span class="n">inputvcf</span> <span class="o">=</span> <span class="n">filter_vcf_records</span><span class="p">()</span>	<span class="c1"># class instance for filtering</span>
+	<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span>  <span class="n">vcffilenames</span><span class="p">:</span>
+		<span class="n">vcf_reader</span><span class="o">=</span><span class="n">vcf</span><span class="o">.</span><span class="n">Reader</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>
+		<span class="n">samplename</span><span class="o">=</span> <span class="n">vcf_reader</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+		<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">vcf_reader</span><span class="p">:</span>
+			<span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">alt</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">CHROM</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">POS</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">REF</span><span class="p">,</span> <span class="n">record</span><span class="o">.</span><span class="n">ALT</span>
+			<span class="n">position</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+
+			<span class="c1">## code to build all snps position</span>
+			<span class="n">create_db_for_all_snps</span><span class="p">(</span><span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+
+			<span class="n">inputvcf</span><span class="o">.</span><span class="n">set_record</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">)</span>
+			<span class="n">filter_result</span> <span class="o">=</span> <span class="n">inputvcf</span><span class="o">.</span><span class="n">filter_a_record</span><span class="p">()</span>
+			<span class="k">if</span> <span class="n">do_filter</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+				<span class="k">if</span> <span class="n">filter_result</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+					<span class="n">add_snp_to_database</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
+					<span class="c1">#snp_positions.update({str(key_counter) + &quot;_&quot; + chromosome + &quot;_&quot; + str(position):{&quot;ref&quot;: str(ref), &quot;alt&quot;:str(alt).replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;, &quot;&quot;)}})</span>
+					<span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">)][</span><span class="n">key_counter</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="k">pass</span>
+
+			<span class="k">else</span><span class="p">:</span>
+				<span class="n">add_snp_to_database</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">alt</span><span class="p">)</span>
+				<span class="c1">#snp_positions.update({str(key_counter) + &quot;_&quot; + chromosome + &quot;_&quot; + str(position):{&quot;ref&quot;: str(ref), &quot;alt&quot;:str(alt).replace(&quot;[&quot;,&quot;&quot;).replace(&quot;]&quot;, &quot;&quot;)}})</span>
+				<span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="nb">str</span><span class="p">(</span><span class="n">position</span><span class="p">)][</span><span class="n">key_counter</span><span class="p">]</span><span class="o">=</span> <span class="kc">True</span>
+
+		<span class="n">key_counter</span><span class="o">+=</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="count_list_elements_occurrences"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.count_list_elements_occurrences">[docs]</a><span class="k">def</span> <span class="nf">count_list_elements_occurrences</span><span class="p">(</span><span class="n">alt_bases</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		counts number of each element of input array</span>
+
+<span class="sd">		:type alt_bases: Array</span>
+<span class="sd">		:param alt_bases: alternate bases from all VCF files for same chromosome and position. e.g. [&quot;A&quot;, &quot;T&quot;, &quot;A&quot;, &quot;T,C&quot;]</span>
+
+<span class="sd">		return:</span>
+<span class="sd">			array with count of each element in the input array. e.g for above array it retuns [2, 1, 2, 1]</span>
+
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">counts</span><span class="o">=</span><span class="p">[]</span>
+	<span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">alt_bases</span><span class="p">:</span>
+		<span class="n">counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alt_bases</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+	<span class="k">return</span> <span class="n">counts</span></div>
+
+<div class="viewcode-block" id="get_unique_snps"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.get_unique_snps">[docs]</a><span class="k">def</span> <span class="nf">get_unique_snps</span><span class="p">():</span>
+	<span class="sd">&quot;&quot;&quot; records a unique snps in a vcf file &quot;&quot;&quot;</span>
+
+	<span class="n">key_counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+	<span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">snpsites</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+		<span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">if</span> <span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="n">key_counter</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># First any(array) finds first True and second any(array) finds another True, if second True, it will say False</span>
+				<span class="c1"># This is unique snp</span>
+
+				<span class="c1">#vcf_database[key][&quot;unique_snps&quot;].append([chromosome, position, vcf_database[key][&quot;snp_positions&quot;][chromosome + &quot;_&quot; + position][&quot;ref&quot;], &quot;,&quot;.join(vcf_database[key][&quot;snp_positions&quot;][chromosome + &quot;_&quot; + position][&quot;alt&quot;]) ])</span>
+				<span class="n">snp_positions</span><span class="p">[</span><span class="n">vcffilenames</span><span class="p">[</span><span class="n">key_counter</span><span class="p">]][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;unique&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span>
+			<span class="k">elif</span> <span class="nb">sum</span><span class="p">(</span><span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">])</span> <span class="o">&gt;=</span><span class="mi">2</span><span class="p">:</span>		<span class="c1"># there might be snp at same position but with different alt base</span>
+
+				<span class="n">snp_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">])</span> <span class="k">if</span> <span class="n">j</span><span class="o">==</span><span class="kc">True</span><span class="p">]</span>
+
+				<span class="n">totalindex</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">snp_index</span><span class="p">)</span>
+				<span class="c1"># Lets check the alt base in these vcf files using index</span>
+				<span class="c1"># lets get array of alt bases from each file</span>
+				<span class="n">alt_snps</span><span class="o">=</span><span class="p">[]</span>
+				<span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">snp_index</span><span class="p">:</span>
+					<span class="n">alt_snps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snp_positions</span><span class="p">[</span><span class="n">vcffilenames</span><span class="p">[</span><span class="n">index</span><span class="p">]][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;alt&quot;</span><span class="p">])</span>
+
+				<span class="c1"># get the counts of the elements</span>
+
+				<span class="n">counts</span> <span class="o">=</span> <span class="n">count_list_elements_occurrences</span><span class="p">(</span><span class="n">alt_snps</span><span class="p">)</span>
+
+				<span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)):</span>
+					<span class="k">if</span> <span class="n">counts</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+						<span class="c1"># this is unique, so occurred once</span>
+						<span class="n">snp_positions</span><span class="p">[</span><span class="n">vcffilenames</span><span class="p">[</span><span class="n">snp_index</span><span class="p">[</span><span class="n">index</span><span class="p">]]][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;unique&quot;</span><span class="p">:</span><span class="kc">True</span><span class="p">})</span> <span class="c1"># vcffilenames[snp_index[index]] =  this will be the filename</span>
+						<span class="c1">#print(&quot;this is unique&quot;, vcffilenames[snp_index[index]], chromosome, position, snp_positions[vcffilenames[snp_index[index]]][chromosome][position])</span>
+
+
+			<span class="c1">#else:</span>
+			<span class="c1">#	vcf_database[&quot;snp_positions&quot;][chromosome + &quot;_&quot; + position].update({&quot;unique&quot;:False})</span>
+	<span class="n">key_counter</span><span class="o">+=</span><span class="mi">1</span>
+	<span class="k">return</span></div>
+
+<div class="viewcode-block" id="get_common_snps"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.get_common_snps">[docs]</a><span class="k">def</span> <span class="nf">get_common_snps</span><span class="p">():</span>
+
+	<span class="sd">&quot;&quot;&quot; records SNPs common to all VCF input files &quot;&quot;&quot;</span>
+
+	<span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">snpsites</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+		<span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">])</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+				<span class="c1">#lets check if all alt bases are same</span>
+				<span class="n">alt_snps</span><span class="o">=</span><span class="p">[]</span>
+				<span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">snpsites</span><span class="p">[</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">])):</span>
+					<span class="n">alt_snps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">snp_positions</span><span class="p">[</span><span class="n">vcffilenames</span><span class="p">[</span><span class="n">index</span><span class="p">]][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;alt&quot;</span><span class="p">])</span>
+
+				<span class="n">counts</span> <span class="o">=</span> <span class="n">count_list_elements_occurrences</span><span class="p">(</span><span class="n">alt_snps</span><span class="p">)</span>
+
+				<span class="k">for</span> <span class="n">countindex</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)):</span>
+					<span class="k">if</span> <span class="n">counts</span><span class="p">[</span><span class="n">countindex</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">vcffilenames</span><span class="p">):</span>
+							<span class="n">snp_positions</span><span class="p">[</span><span class="n">vcffilenames</span><span class="p">[</span><span class="n">countindex</span><span class="p">]][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;common&quot;</span> <span class="p">:</span> <span class="kc">True</span><span class="p">})</span></div>
+
+
+<div class="viewcode-block" id="save_display_common_unique_snps"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.save_display_common_unique_snps">[docs]</a><span class="k">def</span> <span class="nf">save_display_common_unique_snps</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		save the common/unique snps to files and/or display the results</span>
+
+<span class="sd">		:type outdir: string</span>
+<span class="sd">		:param outdir: output directory to save the output files</span>
+
+<span class="sd">		:type save: boolean</span>
+<span class="sd">		:param save: save the results to output files. Default True</span>
+
+<span class="sd">		:type display: boolean</span>
+<span class="sd">		:param display: display the results on the screen. Default False</span>
+
+<span class="sd">		returns:</span>
+<span class="sd">			None</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+	<span class="n">outfiles</span><span class="o">=</span><span class="p">[]</span>
+	<span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">vcffilenames</span><span class="p">:</span>
+		<span class="n">outfile</span><span class="o">=</span><span class="n">outdir</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.vcf&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_snpanalysis.txt&quot;</span>
+		<span class="n">outfh</span><span class="o">=</span><span class="nb">open</span><span class="p">(</span><span class="n">outfile</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">);</span> <span class="n">outfiles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">outfile</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">display</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Common and Unique SNPS in vcf File : &quot;</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Common and Unique SNPs from file &quot;</span><span class="p">,</span> <span class="n">filename</span> <span class="p">,</span> <span class="s2">&quot; are saved in :&quot;</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
+		<span class="k">for</span> <span class="n">chromosome</span> <span class="ow">in</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+			<span class="k">for</span> <span class="n">position</span> <span class="ow">in</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+				<span class="k">if</span> <span class="s2">&quot;common&quot;</span> <span class="ow">in</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;common&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">save</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+						<span class="n">outfh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">chromosome</span><span class="p">,</span><span class="n">position</span><span class="p">,</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;ref&quot;</span><span class="p">],</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;alt&quot;</span><span class="p">],</span> <span class="s2">&quot;common&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">display</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+						<span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">chromosome</span><span class="p">,</span><span class="n">position</span><span class="p">,</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;ref&quot;</span><span class="p">],</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;alt&quot;</span><span class="p">],</span> <span class="s2">&quot;common&quot;</span><span class="p">]))</span>
+				<span class="k">elif</span> <span class="s2">&quot;unique&quot;</span> <span class="ow">in</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> <span class="ow">and</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;unique&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+					<span class="k">if</span> <span class="n">save</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+						<span class="n">outfh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">chromosome</span><span class="p">,</span><span class="n">position</span><span class="p">,</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;ref&quot;</span><span class="p">],</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;alt&quot;</span><span class="p">],</span> <span class="s2">&quot;unique&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+					<span class="k">if</span> <span class="n">display</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+						<span class="nb">print</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">chromosome</span><span class="p">,</span> <span class="n">position</span><span class="p">,</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;ref&quot;</span><span class="p">],</span> <span class="n">snp_positions</span><span class="p">[</span><span class="n">filename</span><span class="p">][</span><span class="n">chromosome</span><span class="p">][</span><span class="n">position</span><span class="p">][</span><span class="s2">&quot;alt&quot;</span><span class="p">],</span> <span class="s2">&quot;unique&quot;</span><span class="p">]))</span>
+
+		<span class="n">outfh</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+	<span class="k">if</span> <span class="n">display</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The outputs are saved in these files :&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outfiles</span><span class="p">))</span>
+
+	<span class="k">return</span></div>
+
+<div class="viewcode-block" id="main"><a class="viewcode-back" href="../filter_and_comparesnps.html#filter_and_comparesnps.main">[docs]</a><span class="k">def</span> <span class="nf">main</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">display</span><span class="p">,</span> <span class="nb">filter</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+
+	<span class="sd">&quot;&quot;&quot; the main function to filter SNPs, compare SNPs and to display/save the common and unique SNPs</span>
+<span class="sd">		:type outdir: String</span>
+<span class="sd">		:param outdir: output directory to save the output files</span>
+
+<span class="sd">		:type display: boolean</span>
+<span class="sd">		:param display: display results on the screen</span>
+
+<span class="sd">		:type filter: boolean</span>
+<span class="sd">		:param filter: Filter SNPs. Default True</span>
+
+<span class="sd">		:type compare: boolean</span>
+<span class="sd">		:param compare: compare SNPs. Default False</span>
+
+<span class="sd">		returns:</span>
+<span class="sd">			None</span>
+<span class="sd">	&quot;&quot;&quot;</span>
+
+	<span class="k">if</span> <span class="nb">filter</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">filter_snps</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+	<span class="k">else</span><span class="p">:</span>
+		<span class="n">filter_snps</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+	<span class="k">if</span> <span class="n">compare</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="n">get_unique_snps</span><span class="p">()</span>
+		<span class="n">get_common_snps</span><span class="p">()</span>
+
+	<span class="n">save_display_common_unique_snps</span><span class="p">(</span><span class="n">outdir</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">display</span><span class="o">=</span><span class="n">display</span><span class="p">)</span></div>
+
+<span class="k">if</span>  <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+
+
+	<span class="n">options</span><span class="o">=</span><span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+	<span class="k">if</span> <span class="ow">not</span> <span class="n">options</span><span class="o">.</span><span class="n">vcf</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Input VCF file/s not provided. Use option --vcf to provde the input VCF files (mutliple vcf files should be space separated)&quot;</span><span class="p">)</span>
+		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+	<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">vcf</span><span class="p">)</span> <span class="o">==</span><span class="mi">1</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">compare</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of VCF files provided : &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">vcf</span><span class="p">))</span>
+		<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;SNP compare will not be done.&quot;</span><span class="p">)</span>
+		<span class="n">options</span><span class="o">.</span><span class="n">compare</span><span class="o">=</span><span class="kc">False</span>
+
+
+
+	<span class="n">vcffilenames</span>  <span class="o">=</span> <span class="n">options</span><span class="o">.</span><span class="n">vcf</span>
+
+
+	<span class="n">main</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">outdir</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">display</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">filter</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">compare</span><span class="p">)</span>
+	<span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Ram Krishna Shrestha
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

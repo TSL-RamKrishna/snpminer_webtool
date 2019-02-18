@@ -1,0 +1,394 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>vcfFilter &mdash; snpFC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> snpFC
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../modules.html">Modules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributions.html">Contributions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">snpFC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>vcfFilter</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for vcfFilter</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">vcf</span>
+<span class="c1">#############################</span>
+<span class="c1">### program to filter VCF snps with following filter criteria</span>
+<span class="c1">### 1) snp position should not have another snp 200 bp forward or backward</span>
+<span class="c1">### 2) min depth = 100</span>
+<span class="c1">#############################</span>
+<span class="c1">### usage : python scriptname refseq.lengths vcf.filename outputfilename</span>
+<span class="c1"># parser=argparse.ArgumentParser(description=&quot;Filter vcf&quot;)</span>
+<span class="c1"># parser.add_argument(&quot;-i&quot;, &quot;--input&quot;, dest=&quot;input&quot;, action=&quot;store&quot;, help=&quot;VCF input file&quot;)</span>
+<span class="c1"># parser.add_argument(&quot;--gt&quot;, dest=&quot;genotype&quot;, action=&quot;store&quot;, default=&quot;homozygous&quot;, help=&quot;Genotype of the SNP&quot;)</span>
+<span class="c1"># parser.add_argument(&quot;--freq&quot;, dest=&quot;frequency&quot;, action=&quot;store&quot;, type=int, default= 50, help=&quot;frequency of the SNP&quot;)</span>
+<span class="c1"># parser.add_argument(&quot;--dp&quot;, dest=&quot;quality_read_depth&quot;, action=&quot;store&quot;, type=int, default=5, help=&quot;Filter SNPs with quality read depth&quot;)</span>
+<span class="c1"># parser.add_argument(&quot;--pvalue&quot;, dest=&quot;pvalue&quot;, action=&quot;store&quot;, type=float, default=0.05, help=&quot;Filter SNPs with pvalue of snp call&quot;)</span>
+<span class="c1"># parser.add_argument(&#39;--output&#39;, &#39;--out&#39;, dest=&#39;output&#39;, action=&#39;store&#39;, default=&quot;vcffilter_output.vcf&quot;, help=&quot;Output filename&quot;)</span>
+<span class="c1"># parser.add_argument(&#39;--gq&#39;, dest=&#39;genotype_quality&#39;, type=int, action=&#39;store&#39;, default=10, help=&#39;Genotype Quality&#39;)</span>
+<span class="c1"># parser.add_argument(&#39;--rrd&#39;,&#39;--sdp&#39;, dest=&#39;raw_read_depth&#39;, type=int, action=&#39;store&#39;, default=3, help=&#39;Raw read depth as reported by Samtools&#39;)</span>
+<span class="c1"># parser.add_argument(&#39;--rd&#39;, dest=&#39;depth_in_reference&#39;, type=int, action=&#39;store&#39;, default=3, help=&#39;Raw depth in reference&#39;)</span>
+<span class="c1"># parser.add_argument(&#39;--ad&#39;, dest=&#39;depth_in_variant&#39;, type=int, action=&#39;store&#39;, default=3, help=&#39;Raw depth in varaint&#39;)</span>
+<span class="c1">#</span>
+<span class="c1"># options = parser.parse_args()</span>
+
+
+<div class="viewcode-block" id="filter"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter">[docs]</a><span class="k">class</span> <span class="nc">filter</span><span class="p">():</span>
+	<span class="sd">&#39;&#39;&#39;	A class for filtering SNPs in VCF files	&#39;&#39;&#39;</span>
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mi">70</span><span class="p">,</span> <span class="n">pvalue</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">genotype</span><span class="o">=</span><span class="s1">&#39;heterozygous&#39;</span><span class="p">,</span> <span class="n">genotype_quality</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">raw_read_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">quality_read_depth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">depth_in_reference</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">depth_in_variant</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Initializes the filter threshold values</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="c1">#self.vcffilename = vcffilename</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="o">=</span><span class="n">frequency</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">pvalue</span><span class="o">=</span><span class="n">pvalue</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">genotype</span><span class="o">=</span><span class="n">genotype</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">genotype_quality</span><span class="o">=</span><span class="n">genotype_quality</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">raw_read_depth</span><span class="o">=</span><span class="n">raw_read_depth</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">quality_read_depth</span><span class="o">=</span><span class="n">quality_read_depth</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">depth_in_reference</span><span class="o">=</span><span class="n">depth_in_reference</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">depth_in_variant</span><span class="o">=</span><span class="n">depth_in_variant</span>
+
+<div class="viewcode-block" id="filter.get_a_record"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_a_record">[docs]</a>	<span class="k">def</span> <span class="nf">get_a_record</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Gets the next snp record</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">count_records</span><span class="o">+=</span><span class="mi">1</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcf_reader</span><span class="o">.</span><span class="n">next</span><span class="p">()</span></div>
+<div class="viewcode-block" id="filter.get_samplename"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_samplename">[docs]</a>	<span class="k">def</span> <span class="nf">get_samplename</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; returns the samplename of the snp record &quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcf_records</span><span class="o">.</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+<div class="viewcode-block" id="filter.get_record_calldata"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_record_calldata">[docs]</a>	<span class="k">def</span> <span class="nf">get_record_calldata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; gets a snp record call data from pyVCF object&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">recordcall</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">recordcall</span></div>
+
+<div class="viewcode-block" id="filter.get_frequency"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_frequency">[docs]</a>	<span class="k">def</span> <span class="nf">get_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="s1">&#39;return frequency of SNP genotype&#39;</span>
+		<span class="n">call</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">FREQ</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="filter.get_pvalue"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_pvalue">[docs]</a>	<span class="k">def</span> <span class="nf">get_pvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="s1">&#39;return pvalue of a SNP record&#39;</span>
+		<span class="n">call</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">PVAL</span></div>
+<div class="viewcode-block" id="filter.get_genotype"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_genotype">[docs]</a>	<span class="k">def</span> <span class="nf">get_genotype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="s1">&#39;return the genotype of a snp record - heterozygous or homozygous&#39;</span>
+		<span class="n">call</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="n">genotype</span><span class="o">=</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">GT</span>
+		<span class="n">array</span><span class="o">=</span><span class="n">genotype</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">array</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+			<span class="k">return</span> <span class="s1">&#39;homozygous&#39;</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="s1">&#39;heterozygous&#39;</span></div>
+
+<div class="viewcode-block" id="filter.get_quality_read_depth"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_quality_read_depth">[docs]</a>	<span class="k">def</span> <span class="nf">get_quality_read_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="s1">&#39;return the quality read depth for snp record&#39;</span>
+		<span class="n">call</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">DP</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.get_genotype_quality"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_genotype_quality">[docs]</a>	<span class="k">def</span> <span class="nf">get_genotype_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="s1">&#39;return genotype quality&#39;</span>
+		<span class="n">call</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">GQ</span><span class="p">)</span></div>
+	<span class="c1"># def get_avg_sample_depth(self, record, sample):</span>
+	<span class="c1"># 	call=record.genotype(sample)</span>
+	<span class="c1"># 	return int(call.data.ADP)</span>
+<div class="viewcode-block" id="filter.get_raw_read_depth"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_raw_read_depth">[docs]</a>	<span class="k">def</span> <span class="nf">get_raw_read_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; returns raw read depth of the snp record&quot;&quot;&quot;</span>
+		<span class="n">call</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">SDP</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.get_depth_in_reference"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_depth_in_reference">[docs]</a>	<span class="k">def</span> <span class="nf">get_depth_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; returns depth in reference data for the snp record&quot;&quot;&quot;</span>
+		<span class="n">call</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">RD</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.get_depth_in_variant"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_depth_in_variant">[docs]</a>	<span class="k">def</span> <span class="nf">get_depth_in_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; returns depth in variant data for the snp record &quot;&quot;&quot;</span>
+		<span class="n">call</span><span class="o">=</span><span class="n">record</span><span class="o">.</span><span class="n">genotype</span><span class="p">(</span><span class="n">sample</span><span class="p">)</span>
+		<span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">AD</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_threshold_value"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_threshold_value">[docs]</a>	<span class="k">def</span> <span class="nf">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recordvalue</span><span class="p">,</span> <span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to test snp record value to threshold value</span>
+<span class="sd">		args:</span>
+<span class="sd">		recordvalue - value in a snp record</span>
+<span class="sd">		testvalue - threshold value to test</span>
+
+<span class="sd">		returns:</span>
+<span class="sd">		True - if condition is True</span>
+<span class="sd">		False - if condition is False</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="k">if</span> <span class="n">recordvalue</span> <span class="o">&gt;=</span> <span class="n">testvalue</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="filter.check_frequency"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_frequency">[docs]</a>	<span class="k">def</span> <span class="nf">check_frequency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span> <span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check frequency of a base in snp call&quot;&quot;&quot;</span>
+
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_frequency</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_pvalue"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_pvalue">[docs]</a>	<span class="k">def</span> <span class="nf">check_pvalue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check pvalue of alt base call in a snp call&quot;&quot;&quot;</span>
+		<span class="n">record_pvalue</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pvalue</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">record_pvalue</span> <span class="o">&lt;=</span> <span class="nb">float</span><span class="p">(</span><span class="n">testvalue</span><span class="p">):</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">False</span></div>
+		<span class="c1">#return (not self.check_threshold_value(float(self.get_pvalue(record, sample)), np.float32(testvalue)))		# here we are testing pvalue less or equal to, so we have to return the opposite result</span>
+<div class="viewcode-block" id="filter.check_genotype"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_genotype">[docs]</a>	<span class="k">def</span> <span class="nf">check_genotype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check genotype of alt base in the snp call&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_genotype</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_genotype_quality"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_genotype_quality">[docs]</a>	<span class="k">def</span> <span class="nf">check_genotype_quality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check genotype quality of alt base in the snp call&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_genotype_quality</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_quality_read_depth"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_quality_read_depth">[docs]</a>	<span class="k">def</span> <span class="nf">check_quality_read_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to call read depth quality of alt base in the snp call&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_quality_read_depth</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_raw_read_depth"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_raw_read_depth">[docs]</a>	<span class="k">def</span> <span class="nf">check_raw_read_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check raw read depth of alt base in the snp call&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_raw_read_depth</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_depth_in_reference"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_depth_in_reference">[docs]</a>	<span class="k">def</span> <span class="nf">check_depth_in_reference</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check dpeth in reference for alt base call in the snp call&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_depth_in_reference</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+<div class="viewcode-block" id="filter.check_depth_in_variant"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.check_depth_in_variant">[docs]</a>	<span class="k">def</span> <span class="nf">check_depth_in_variant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">,</span><span class="n">testvalue</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; function to check depth in variant for alt base in the snp call&quot;&quot;&quot;</span>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_threshold_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_depth_in_variant</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">sample</span><span class="p">),</span> <span class="n">testvalue</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="filter.passed_filter"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.passed_filter">[docs]</a>	<span class="k">def</span> <span class="nf">passed_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		function to test if a snp record passed the filter or not</span>
+<span class="sd">		args:</span>
+<span class="sd">			record - pyVCF SNP record object</span>
+<span class="sd">			samplename - samplename in the SNP record</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">results</span><span class="o">=</span><span class="p">[</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_frequency</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequency</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_pvalue</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pvalue</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_genotype</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">genotype</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_genotype_quality</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">genotype_quality</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_quality_read_depth</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quality_read_depth</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_raw_read_depth</span><span class="p">(</span><span class="n">record</span><span class="p">,</span><span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw_read_depth</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_depth_in_reference</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_reference</span><span class="p">),</span>
+				<span class="bp">self</span><span class="o">.</span><span class="n">check_depth_in_variant</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_in_variant</span><span class="p">)</span>
+				<span class="p">]</span>
+
+		<span class="k">if</span> <span class="nb">all</span><span class="p">(</span><span class="n">results</span><span class="p">):</span>      <span class="c1"># also can be used if results.count(True) == 8</span>
+			<span class="k">return</span> <span class="kc">True</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="filter.get_passed_filter_records"><a class="viewcode-back" href="../vcfFilter.html#vcfFilter.filter.get_passed_filter_records">[docs]</a>	<span class="k">def</span> <span class="nf">get_passed_filter_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">			function to filter all SNP records from a VCF file</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+
+		<span class="n">records_passed</span><span class="o">=</span><span class="p">[]</span>
+		<span class="n">samplename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">get_samplename</span><span class="p">()</span>
+		<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcf_records</span><span class="p">:</span>
+			<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">passed_filter</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+				<span class="n">records_passed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+
+		<span class="k">return</span> <span class="n">records_passed</span></div></div>
+
+
+		<span class="c1">#test_functions=[&#39;check_frequency&#39;, &#39;check_pvalue&#39;, &#39;check_genotype&#39;, &#39;check_genotype_quality&#39;, &#39;check_quality_read_depth&#39;, &#39;check_raw_read_depth&#39;, &#39;check_raw_depth_in_reference&#39;, &#39;check_depth_in_variant&#39;]</span>
+
+
+
+<span class="k">if</span> <span class="vm">__name__</span><span class="o">==</span><span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+	<span class="n">vcffilter</span><span class="o">=</span><span class="nb">filter</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">input</span><span class="p">)</span>
+	<span class="n">vcffilter</span><span class="o">.</span><span class="n">open_vcf_writer</span><span class="p">(</span><span class="n">options</span><span class="o">.</span><span class="n">output</span><span class="p">)</span>
+	<span class="n">samplenames</span><span class="o">=</span><span class="n">vcffilter</span><span class="o">.</span><span class="n">samplenames</span>
+
+	<span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">vcffilter</span><span class="o">.</span><span class="n">vcf_reader</span><span class="p">:</span>
+		<span class="k">for</span> <span class="n">samplename</span> <span class="ow">in</span> <span class="n">samplenames</span><span class="p">:</span>
+			<span class="k">if</span> <span class="n">vcffilter</span><span class="o">.</span><span class="n">do_filter</span><span class="p">(</span><span class="n">record</span><span class="p">,</span> <span class="n">samplename</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">pvalue</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">genotype</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">genotype_quality</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">raw_read_depth</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">quality_read_depth</span><span class="p">,</span>  <span class="n">options</span><span class="o">.</span><span class="n">depth_in_reference</span><span class="p">,</span> <span class="n">options</span><span class="o">.</span><span class="n">depth_in_variant</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+				<span class="nb">print</span> <span class="p">(</span><span class="n">record</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Ram Krishna Shrestha
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
