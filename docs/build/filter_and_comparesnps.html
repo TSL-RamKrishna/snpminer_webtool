@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>filter_and_comparesnps module &mdash; snpFC 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="vcfFilter module" href="vcfFilter.html" />
+    <link rel="prev" title="Modules" href="modules.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> snpFC
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Modules</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">filter_and_comparesnps module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vcfFilter.html">vcfFilter module</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="contributions.html">Contributions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="help.html">Contact</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">snpFC</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="modules.html">Modules</a> &raquo;</li>
+        
+      <li>filter_and_comparesnps module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/filter_and_comparesnps.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-filter_and_comparesnps">
+<span id="filter-and-comparesnps-module"></span><h1>filter_and_comparesnps module<a class="headerlink" href="#module-filter_and_comparesnps" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="filter_and_comparesnps.count_list_elements_occurrences">
+<code class="descclassname">filter_and_comparesnps.</code><code class="descname">count_list_elements_occurrences</code><span class="sig-paren">(</span><em>alt_bases</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#count_list_elements_occurrences"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.count_list_elements_occurrences" title="Permalink to this definition">¶</a></dt>
+<dd><p>counts number of each element of input array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>alt_bases</strong> (<em>Array</em>) – alternate bases from all VCF files for same chromosome and position. e.g. [“A”, “T”, “A”, “T,C”]</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>array with count of each element in the input array. e.g for above array it retuns [2, 1, 2, 1]</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="filter_and_comparesnps.filter_snps">
+<code class="descclassname">filter_and_comparesnps.</code><code class="descname">filter_snps</code><span class="sig-paren">(</span><em>do_filter=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#filter_snps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.filter_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filter the snps using threshold values as defined and populates the global variable to with SNP records</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>do_filter</strong> (<em>boolean</em>) – decision to filter the SNPs or not</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>return:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="class">
+<dt id="filter_and_comparesnps.filter_vcf_records">
+<em class="property">class </em><code class="descclassname">filter_and_comparesnps.</code><code class="descname">filter_vcf_records</code><span class="sig-paren">(</span><em>frequency=70</em>, <em>pvalue=0.05</em>, <em>genotype='heterozygous'</em>, <em>genotype_quality=10</em>, <em>raw_read_depth=1</em>, <em>quality_read_depth=1</em>, <em>depth_in_reference=1</em>, <em>depth_in_variant=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#filter_vcf_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.filter_vcf_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.7)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>a class to filter the vcf SNP records based on the thresholds provided</p>
+<dl class="method">
+<dt id="filter_and_comparesnps.filter_vcf_records.filter_a_record">
+<code class="descname">filter_a_record</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#filter_vcf_records.filter_a_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.filter_vcf_records.filter_a_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Filters one SNP record at a time</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="filter_and_comparesnps.filter_vcf_records.filter_records">
+<code class="descname">filter_records</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#filter_vcf_records.filter_records"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.filter_vcf_records.filter_records" title="Permalink to this definition">¶</a></dt>
+<dd><p>(obsolete now) Filters all SNP records from a vcf filename
+returns: list of pyvcf SNP objects that have passed the filter</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="filter_and_comparesnps.filter_vcf_records.set_filename">
+<code class="descname">set_filename</code><span class="sig-paren">(</span><em>vcf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#filter_vcf_records.set_filename"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.filter_vcf_records.set_filename" title="Permalink to this definition">¶</a></dt>
+<dd><p>sets the VCF filename
+:type vcf: string
+:param vcf: VCF filename</p>
+<dl class="docutils">
+<dt>returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="filter_and_comparesnps.filter_vcf_records.set_record">
+<code class="descname">set_record</code><span class="sig-paren">(</span><em>record</em>, <em>samplename</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#filter_vcf_records.set_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.filter_vcf_records.set_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>set a SNP record and record samplename
+:type record: pyVCF object
+:param record: a SNP record in a VCF file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>samplename</strong> (<em>string</em>) – name of a sample in the SNP call</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="filter_and_comparesnps.get_common_snps">
+<code class="descclassname">filter_and_comparesnps.</code><code class="descname">get_common_snps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#get_common_snps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.get_common_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>records SNPs common to all VCF input files</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="filter_and_comparesnps.get_unique_snps">
+<code class="descclassname">filter_and_comparesnps.</code><code class="descname">get_unique_snps</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#get_unique_snps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.get_unique_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>records a unique snps in a vcf file</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="filter_and_comparesnps.main">
+<code class="descclassname">filter_and_comparesnps.</code><code class="descname">main</code><span class="sig-paren">(</span><em>outdir</em>, <em>display</em>, <em>filter=True</em>, <em>compare=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>the main function to filter SNPs, compare SNPs and to display/save the common and unique SNPs
+:type outdir: String
+:param outdir: output directory to save the output files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>display</strong> (<em>boolean</em>) – display results on the screen</li>
+<li><strong>filter</strong> (<em>boolean</em>) – Filter SNPs. Default True</li>
+<li><strong>compare</strong> (<em>boolean</em>) – compare SNPs. Default False</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="filter_and_comparesnps.save_display_common_unique_snps">
+<code class="descclassname">filter_and_comparesnps.</code><code class="descname">save_display_common_unique_snps</code><span class="sig-paren">(</span><em>outdir</em>, <em>save=True</em>, <em>display=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/filter_and_comparesnps.html#save_display_common_unique_snps"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#filter_and_comparesnps.save_display_common_unique_snps" title="Permalink to this definition">¶</a></dt>
+<dd><p>save the common/unique snps to files and/or display the results</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>outdir</strong> (<em>string</em>) – output directory to save the output files</li>
+<li><strong>save</strong> (<em>boolean</em>) – save the results to output files. Default True</li>
+<li><strong>display</strong> (<em>boolean</em>) – display the results on the screen. Default False</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="docutils">
+<dt>returns:</dt>
+<dd>None</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="vcfFilter.html" class="btn btn-neutral float-right" title="vcfFilter module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modules.html" class="btn btn-neutral" title="Modules" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Ram Krishna Shrestha
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
