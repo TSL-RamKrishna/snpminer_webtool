@@ -14,7 +14,7 @@ snpFC - a python tool for filtering and comparing SNPs from two or multiple VCF 
 How can I get it
 ^^^^^^^^^^^^^^^^
 
-At the moment, updated snpFC tool can be obtained from github repo `link <https://github.com/TSL-RamKrishna/snpminer_webtool>`_ . Just clone the repository or download as a compressed file.
+At the moment, latest snpFC tool can be obtained from github repo `link <https://github.com/TSL-RamKrishna/snpminer_webtool>`_ . Just clone the repository or download as a compressed file.
 
 I have a target to upload snpFC to python repository enabling to install using pip command.
 
@@ -82,6 +82,8 @@ To check the options::
    modules
 
    contributions
+   
+   help
 
 
 Indices and tables

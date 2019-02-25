@@ -14,7 +14,7 @@ snpFC - a python tool for filtering and comparing SNPs from two or multiple VCF 
 How can I get it
 ^^^^^^^^^^^^^^^^
 
-At the moment, updated snpFC tool can be obtained from github repo `link <https://github.com/TSL-RamKrishna/snpminer_webtool>`_ . Just clone the repository or download as a compressed file.
+At the moment, latest snpFC tool can be obtained from github repo `link <https://github.com/TSL-RamKrishna/snpminer_webtool>`_ . Just clone the repository or download as a compressed file.
 
 I have a target to upload snpFC to python repository enabling to install using pip command.
 
@@ -30,7 +30,7 @@ Quick Start
 
 If you don't have patience, here is how to run snpFC ::
         
-        python scripts/filter_and_comparesnps.py --vcf testfiles/test1.vcf testfiles/test2.vcf --filter --compare --show
+        python scripts/filter_and_comparesnps.py --vcf testfiles/test1.vcf testfiles/test2.vcf --filter --compare --show --frequency 70 --pvalue 0.05 --genotype heterozygous --quality 10 --rawreaddepth 5 --qualityreaddepth 5 --depthreference 5 --depthvariant 5 --outdir ./testfiles
 
 The above command will output as following ::
 
@@ -58,15 +58,15 @@ Available options::
         --vcf                   space separated two or more vcf files
         --filter                filter snps
         --compare               compare snps between vcf files
-        --frequency             frequency threshold value to filter
-        --pvalue                pvalue threshold value to filter
-        --genotype              genotype to filter
-        --quality               genotype quality threshold to filter
-        --rawreaddepth          raw read depth threshold to filter
-        --qualityreaddepth      quality read depth threshold to filter
-        --depthreference        depth in reference threshold to filter
-        --depthvariant          depth in variant threshold to filter
-        --show                  show the compared snps on screen
+        --frequency             frequency threshold value to filter (default: 70)
+        --pvalue                pvalue threshold value to filter ( default: 0.05)
+        --genotype              genotype to filter (default: heterozygous)
+        --quality               genotype quality threshold to filter (default: 10)
+        --rawreaddepth          raw read depth threshold to filter (default: 5)
+        --qualityreaddepth      quality read depth threshold to filter (default:5)
+        --depthreference        depth in reference threshold to filter (default:5)
+        --depthvariant          depth in variant threshold to filter (default:5)
+        --show                  show the compared snps on screen 
         --outdir                output directory
 
 To check the options::
@@ -82,6 +82,8 @@ To check the options::
    modules
 
    contributions
+   
+   help
 
 
 Indices and tables

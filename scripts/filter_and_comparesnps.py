@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os, sys, re
-import numpy as np
 import argparse
 import vcf
 
@@ -67,6 +66,7 @@ class filter_vcf_records():
 				None
 		"""
 		self.filter=filter(frequency, pvalue, genotype, genotype_quality, raw_read_depth, quality_read_depth, depth_in_reference, depth_in_variant)
+
 	def set_filename(self, vcf):
 		"""
 			sets the VCF filename
@@ -93,16 +93,17 @@ class filter_vcf_records():
 		self.samplename = samplename
 
 	def filter_records(self):
+
 		""" (obsolete now) Filters all SNP records from a vcf filename
 			returns: list of pyvcf SNP objects that have passed the filter
 		"""
+
 		filter = self.filter.get_passed_filter_records(self.vcf, self.frequency, self.pvalue, self.genotype, self.genotype_quality, self.raw_read_depth, self.quality_read_depth, self.depth_in_reference, self.depth_in_variant)
+
 	def filter_a_record(self):
-		""" filters one SNP record at a time
-			returns:
-				True if the SNP record passes filter
-				False otherwise
-		"""
+
+		""" Filters one SNP record at a time """
+
 		return self.filter.passed_filter(self.record, self.samplename)
 
 def filter_snps(do_filter=False):
