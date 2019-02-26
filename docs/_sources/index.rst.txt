@@ -22,14 +22,14 @@ Pre-requisites
 ^^^^^^^^^^^^^^
 
 Assuming you have python3 already, install pyVCF ::
-        
+
         pip install pyvcf
 
 Quick Start
 ^^^^^^^^^^^
 
 If you don't have patience, here is how to run snpFC ::
-        
+
         python scripts/filter_and_comparesnps.py --vcf testfiles/test1.vcf testfiles/test2.vcf --filter --compare --show --frequency 70 --pvalue 0.05 --genotype heterozygous --quality 10 --rawreaddepth 5 --qualityreaddepth 5 --depthreference 5 --depthvariant 5 --outdir ./testfiles
 
 The above command will output as following ::
@@ -51,7 +51,7 @@ The above command will output as following ::
 
 
 Options
-^^^^^^^ 
+^^^^^^^
 
 Available options::
 
@@ -66,23 +66,21 @@ Available options::
         --qualityreaddepth      quality read depth threshold to filter (default:5)
         --depthreference        depth in reference threshold to filter (default:5)
         --depthvariant          depth in variant threshold to filter (default:5)
-        --show                  show the compared snps on screen 
+        --show                  show the compared snps on screen
         --outdir                output directory
 
 To check the options::
-        
+
         python scripts/filter_and_comparesnps.py --help
 
 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+   :caption: Table of Contents:
 
    modules
-
    contributions
-   
    help
 
 
