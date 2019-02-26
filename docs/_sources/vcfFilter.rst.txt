@@ -1,5 +1,5 @@
-vcfFilter module
-================
+vcfFilter
+=========
 
 .. automodule:: vcfFilter
     :members:

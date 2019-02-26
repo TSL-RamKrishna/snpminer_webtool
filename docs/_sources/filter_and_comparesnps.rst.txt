@@ -1,5 +1,5 @@
-filter\_and\_comparesnps module
-===============================
+filter\_and\_comparesnps
+========================
 
 .. automodule:: filter_and_comparesnps
     :members:
